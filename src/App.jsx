@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Icon from "./components/Icon.jsx";
 import LoginPage from "./pages/auth/LoginPage.jsx";
+import { getCurrentProfile } from "./features/auth/services/profileService.js";
 import ProfilePage from "./pages/profile/ProfilePage.jsx";
 import RegisterPage from "./pages/auth/RegisterPage.jsx";
 import Sidebar from "./layouts/components/Sidebar.jsx";
@@ -11,8 +12,13 @@ function App() {
   const [session, setSession] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  function handleAuthenticated(nextSession) {
-    setSession(nextSession);
+  async function handleAuthenticated(nextSession) {
+    const profile = await getCurrentProfile(nextSession.token);
+    if (!profile) {
+      throw new Error("The authenticated profile is missing.");
+    }
+
+    setSession({ ...nextSession, profile });
     setView("profile");
   }
 
