@@ -3,7 +3,7 @@ import Logo from "../../components/Logo.jsx";
 import RegisterForm from "../../features/auth/components/RegisterForm.jsx";
 import GuestLayout from "../../layouts/GuestLayout.jsx";
 
-export default function RegisterPage() {
+export default function RegisterPage({ onNavigate }) {
   return (
     <GuestLayout>
       <main className="grid min-h-screen grid-cols-1 bg-white min-[801px]:grid-cols-[minmax(420px,1.07fr)_minmax(500px,0.93fr)]">
@@ -11,7 +11,7 @@ export default function RegisterPage() {
           <div className="mb-[38px] block w-full max-w-[470px] min-[801px]:hidden">
             <Logo />
           </div>
-          <RegisterForm />
+          <RegisterForm onNavigate={onNavigate} />
           <p className="mt-auto pt-[55px] text-center text-[11px] text-[#a0a5b2] min-[801px]:absolute min-[801px]:bottom-[25px] min-[801px]:mt-0 min-[801px]:pt-0">
             © 2025 EduLearn. Secure learning, thoughtfully designed.
           </p>
