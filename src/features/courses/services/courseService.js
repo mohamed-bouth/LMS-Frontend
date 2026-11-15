@@ -18,3 +18,11 @@ export async function getManagedCourses(token) {
 export async function updateCourseStatus(token, courseId, action) {
   return requestCourse(`/api/courses/${courseId}/${action}`, token, { method: "PATCH" });
 }
+
+export async function updateCourse(token, courseId, changes) {
+  return requestCourse(`/api/courses/${courseId}`, token, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(changes),
+  });
+}

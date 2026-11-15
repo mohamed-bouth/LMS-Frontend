@@ -1,9 +1,10 @@
 
 import { useState } from "react";
 import Icon from "./components/Icon.jsx";
+import ProtectedView from "./components/ProtectedView.jsx";
 import LoginPage from "./pages/auth/LoginPage.jsx";
 import { getMyEnrollments } from "./features/courses/services/enrollmentService.js";
-import { getManagedCourses, updateCourseStatus } from "./features/courses/services/courseService.js";
+import { getManagedCourses, updateCourse, updateCourseStatus } from "./features/courses/services/courseService.js";
 import AdminCoursesPage from "./pages/admin/AdminCoursesPage.jsx";
 import MyCoursesPage from "./pages/courses/MyCoursesPage.jsx";
 import { getCurrentProfile } from "./features/auth/services/profileService.js";
@@ -105,6 +106,24 @@ function App() {
     }
   }
 
+  async function saveCourse(courseId, changes) {
+    try {
+      await updateCourse(session.token, courseId, changes);
+      await loadManagedCourses();
+    } catch (error) {
+      setManagedCoursesError(error.status === 403 ? "Accès refusé." : "Unable to update the course.");
+    }
+  }
+
+  async function archiveCourse(course) {
+    try {
+      await updateCourseStatus(session.token, course._id, "archived");
+      await loadManagedCourses();
+    } catch (error) {
+      setManagedCoursesError(error.status === 403 ? "Accès refusé." : "Unable to archive the course.");
+    }
+  }
+
   if (session) {
     return (
       <div className="min-h-screen bg-[#fafafe] text-[#182038]">
@@ -139,7 +158,9 @@ function App() {
           ) : view === "my-courses" ? (
             <MyCoursesPage enrollments={courses} isLoading={coursesLoading} error={coursesError} onRetry={loadCourses} />
           ) : view === "admin-courses" ? (
-            <AdminCoursesPage courses={managedCourses} isLoading={managedCoursesLoading} error={managedCoursesError} onRetry={loadManagedCourses} onStatusChange={changeCourseStatus} />
+            <ProtectedView role={session.profile.role} allowedRole="admin">
+              <AdminCoursesPage courses={managedCourses} isLoading={managedCoursesLoading} error={managedCoursesError} onRetry={loadManagedCourses} onStatusChange={changeCourseStatus} onSave={saveCourse} onArchive={archiveCourse} />
+            </ProtectedView>
           ) : (
             <main className="grid min-h-[calc(100vh-76px)] place-items-center px-6 text-center">
               <div>
