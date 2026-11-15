@@ -12,6 +12,7 @@ const paths = {
   logout: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4m7 14 5-5-5-5m5 5H9",
   close: "m6 6 12 12M18 6 6 18",
   menu: "M4 6h16M4 12h16M4 18h16",
+  search: "m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z",
 };
 
 export default function Icon({ name, size = 20 }) {
