@@ -1,8 +1,11 @@
 
 import { useState } from "react";
 import Icon from "./components/Icon.jsx";
+import ProtectedView from "./components/ProtectedView.jsx";
 import LoginPage from "./pages/auth/LoginPage.jsx";
 import { getMyEnrollments } from "./features/courses/services/enrollmentService.js";
+import { getManagedCourses, updateCourse, updateCourseStatus } from "./features/courses/services/courseService.js";
+import AdminCoursesPage from "./pages/admin/AdminCoursesPage.jsx";
 import MyCoursesPage from "./pages/courses/MyCoursesPage.jsx";
 import { getCurrentProfile } from "./features/auth/services/profileService.js";
 import ProfilePage from "./pages/profile/ProfilePage.jsx";
@@ -16,6 +19,9 @@ function App() {
   const [courses, setCourses] = useState([]);
   const [coursesLoading, setCoursesLoading] = useState(false);
   const [coursesError, setCoursesError] = useState("");
+  const [managedCourses, setManagedCourses] = useState([]);
+  const [managedCoursesLoading, setManagedCoursesLoading] = useState(false);
+  const [managedCoursesError, setManagedCoursesError] = useState("");
 
   async function handleAuthenticated(nextSession) {
     const profile = await getCurrentProfile(nextSession.token);
@@ -23,8 +29,12 @@ function App() {
       throw new Error("The authenticated profile is missing.");
     }
 
-    setSession({ ...nextSession, profile });
-    setView("profile");
+    const authenticatedSession = { ...nextSession, profile };
+    setSession(authenticatedSession);
+    setView(profile.role?.toLowerCase() === "admin" ? "admin-courses" : "profile");
+    if (profile.role?.toLowerCase() === "admin") {
+      await loadManagedCourses(nextSession.token);
+    }
   }
 
   async function loadCourses() {
@@ -52,7 +62,66 @@ function App() {
       loadCourses();
       return;
     }
+    if (nextView === "admin-courses") {
+      loadManagedCourses();
+      return;
+    }
     setView(nextView);
+  }
+
+  async function loadManagedCourses(token = session?.token) {
+    setView("admin-courses");
+    setManagedCoursesLoading(true);
+    setManagedCoursesError("");
+    try {
+      setManagedCourses(await getManagedCourses(token));
+    } catch (error) {
+      if (error.status === 401) {
+        setSession(null);
+        setView("login");
+      } else if (error.status === 403) {
+        setManagedCoursesError("Accès refusé.");
+      } else {
+        setManagedCoursesError("Unable to load courses.");
+      }
+    } finally {
+      setManagedCoursesLoading(false);
+    }
+  }
+
+  async function changeCourseStatus(course) {
+    const action = course.status === "published" ? "unpublish" : "publish";
+    try {
+      await updateCourseStatus(session.token, course._id, action);
+      await loadManagedCourses();
+    } catch (error) {
+      if (error.status === 401) {
+        setSession(null);
+        setView("login");
+      } else if (error.status === 403) {
+        setManagedCoursesError("Accès refusé.");
+      } else {
+        setManagedCoursesError("Unable to update the course.");
+      }
+    }
+  }
+
+  async function saveCourse(courseId, changes) {
+    try {
+      await updateCourse(session.token, courseId, changes);
+      await loadManagedCourses();
+    } catch (error) {
+      setManagedCoursesError(error.status === 403 ? "Accès refusé." : "Unable to update the course.");
+    }
+  }
+
+  async function archiveCourse(course) {
+    try {
+      await updateCourseStatus(session.token, course._id, "archived");
+      await loadManagedCourses();
+    } catch (error) {
+      setManagedCoursesError(error.status === 403 ? "Accès refusé." : "Unable to archive the course.");
+    }
   }
 
   if (session) {
@@ -88,6 +157,10 @@ function App() {
             <ProfilePage profile={session.profile} onNavigate={navigate} />
           ) : view === "my-courses" ? (
             <MyCoursesPage enrollments={courses} isLoading={coursesLoading} error={coursesError} onRetry={loadCourses} />
+          ) : view === "admin-courses" ? (
+            <ProtectedView role={session.profile.role} allowedRole="admin">
+              <AdminCoursesPage courses={managedCourses} isLoading={managedCoursesLoading} error={managedCoursesError} onRetry={loadManagedCourses} onStatusChange={changeCourseStatus} onSave={saveCourse} onArchive={archiveCourse} />
+            </ProtectedView>
           ) : (
             <main className="grid min-h-[calc(100vh-76px)] place-items-center px-6 text-center">
               <div>
