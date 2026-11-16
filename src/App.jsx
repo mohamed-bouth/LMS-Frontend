@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Icon from "./components/Icon.jsx";
 import LoginPage from "./pages/auth/LoginPage.jsx";
+import { getMyEnrollments } from "./features/courses/services/enrollmentService.js";
+import MyCoursesPage from "./pages/courses/MyCoursesPage.jsx";
 import { getCurrentProfile } from "./features/auth/services/profileService.js";
 import ProfilePage from "./pages/profile/ProfilePage.jsx";
 import RegisterPage from "./pages/auth/RegisterPage.jsx";
@@ -11,6 +13,9 @@ function App() {
   const [view, setView] = useState("login");
   const [session, setSession] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [courses, setCourses] = useState([]);
+  const [coursesLoading, setCoursesLoading] = useState(false);
+  const [coursesError, setCoursesError] = useState("");
 
   async function handleAuthenticated(nextSession) {
     const profile = await getCurrentProfile(nextSession.token);
@@ -22,6 +27,34 @@ function App() {
     setView("profile");
   }
 
+  async function loadCourses() {
+    setView("my-courses");
+    setCoursesLoading(true);
+    setCoursesError("");
+    try {
+      setCourses(await getMyEnrollments(session.token));
+    } catch (error) {
+      if (error.status === 401) {
+        setSession(null);
+        setView("login");
+      } else if (error.status === 403) {
+        setCoursesError("Accès refusé.");
+      } else {
+        setCoursesError("Unable to load your courses.");
+      }
+    } finally {
+      setCoursesLoading(false);
+    }
+  }
+
+  function navigate(nextView) {
+    if (nextView === "my-courses") {
+      loadCourses();
+      return;
+    }
+    setView(nextView);
+  }
+
   if (session) {
     return (
       <div className="min-h-screen bg-[#fafafe] text-[#182038]">
@@ -30,7 +63,7 @@ function App() {
           view={view}
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
-          onNavigate={setView}
+          onNavigate={navigate}
           onLogout={() => {
             setSession(null);
             setView("login");
@@ -52,7 +85,9 @@ function App() {
             </div>
           </header>
           {view === "profile" ? (
-            <ProfilePage profile={session.profile} onNavigate={setView} />
+            <ProfilePage profile={session.profile} onNavigate={navigate} />
+          ) : view === "my-courses" ? (
+            <MyCoursesPage enrollments={courses} isLoading={coursesLoading} error={coursesError} onRetry={loadCourses} />
           ) : (
             <main className="grid min-h-[calc(100vh-76px)] place-items-center px-6 text-center">
               <div>
