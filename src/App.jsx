@@ -5,7 +5,9 @@ import ProtectedView from "./components/ProtectedView.jsx";
 import LoginPage from "./features/auth/pages/LoginPage.jsx";
 import { getMyEnrollments } from "./features/courses/services/enrollmentService.js";
 import { getManagedCourses, updateCourse, updateCourseStatus } from "./features/courses/services/courseService.js";
+import { createCourse } from "./features/courses/services/courseService.js";
 import AdminCoursesPage from "./features/courses/pages/admin/AdminCoursesPage.jsx";
+import CreateCoursePage from "./features/courses/pages/admin/CreateCoursePage.jsx";
 import MyCoursesPage from "./features/courses/pages/learner/MyCoursesPage.jsx";
 import { getCurrentProfile } from "./features/auth/services/profileService.js";
 import ProfilePage from "./features/profile/pages/ProfilePage.jsx";
@@ -126,6 +128,19 @@ function App() {
     }
   }
 
+  async function handleCreateCourse(course) {
+    try {
+      await createCourse(session.token, course);
+      await loadManagedCourses();
+    } catch (error) {
+      if (error.status === 401) {
+        setSession(null);
+        setView("login");
+      }
+      throw error;
+    }
+  }
+
   if (session) {
     return (
       <div className="min-h-screen bg-[#fafafe] text-[#182038]">
@@ -161,7 +176,11 @@ function App() {
             <MyCoursesPage enrollments={courses} isLoading={coursesLoading} error={coursesError} onRetry={loadCourses} />
           ) : view === "admin-courses" ? (
             <ProtectedView role={session.profile.role} allowedRoles={["admin", "trainer"]}>
-              <AdminCoursesPage courses={managedCourses} isLoading={managedCoursesLoading} error={managedCoursesError} onRetry={loadManagedCourses} onStatusChange={changeCourseStatus} onSave={saveCourse} onArchive={archiveCourse} />
+              <AdminCoursesPage courses={managedCourses} isLoading={managedCoursesLoading} error={managedCoursesError} onRetry={loadManagedCourses} onStatusChange={changeCourseStatus} onSave={saveCourse} onArchive={archiveCourse} onCreate={() => setView("create-course")} />
+            </ProtectedView>
+          ) : view === "create-course" ? (
+            <ProtectedView role={session.profile.role} allowedRoles={["admin", "trainer"]}>
+              <CreateCoursePage onBack={() => setView("admin-courses")} onCreate={handleCreateCourse} />
             </ProtectedView>
           ) : (
             <main className="grid min-h-[calc(100vh-76px)] place-items-center px-6 text-center">

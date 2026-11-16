@@ -15,6 +15,14 @@ export async function getManagedCourses(token) {
   return payload.data?.courses || [];
 }
 
+export async function createCourse(token, course) {
+  return requestCourse("/api/courses", token, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(course),
+  });
+}
+
 export async function updateCourseStatus(token, courseId, action) {
   return requestCourse(`/api/courses/${courseId}/${action}`, token, { method: "PATCH" });
 }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Icon from "../../../../components/Icon.jsx";
 
-export default function AdminCoursesPage({ courses, isLoading, error, onRetry, onStatusChange, onSave, onArchive }) {
+export default function AdminCoursesPage({ courses, isLoading, error, onRetry, onStatusChange, onSave, onArchive, onCreate }) {
   const [search, setSearch] = useState("");
   const [editingCourse, setEditingCourse] = useState(null);
   const [form, setForm] = useState({ title: "", description: "", estimatedDuration: "" });
@@ -23,7 +23,13 @@ export default function AdminCoursesPage({ courses, isLoading, error, onRetry, o
       <div className="mb-6">
         <p className="text-[10px] font-bold uppercase tracking-[1.4px] text-[#7770e6]">Administration</p>
         <h1 className="mt-1.5 font-['Poppins'] text-[27px] tracking-[-1px] text-[#202647]">Courses Management</h1>
-        <p className="mt-1.5 text-[13px] text-[#858b9b]">Review courses and manage their publication status.</p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <p className="mt-1.5 text-[13px] text-[#858b9b]">Review courses and manage their publication status.</p>
+          <button className="inline-flex items-center justify-center gap-2 rounded-[9px] bg-[#4f46d9] px-4 py-2.5 text-xs font-semibold text-white" type="button" onClick={onCreate}>
+            <Icon name="plus" size={17} />
+            Create course
+          </button>
+        </div>
       </div>
       <label className="mb-5 flex h-11 max-w-[380px] items-center gap-2 rounded-[10px] border border-[#dfe2ea] bg-white px-3.5 text-[#9298a9]">
         <Icon name="search" size={17} />

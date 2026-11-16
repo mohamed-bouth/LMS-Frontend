@@ -13,6 +13,7 @@ const paths = {
   close: "m6 6 12 12M18 6 6 18",
   menu: "M4 6h16M4 12h16M4 18h16",
   search: "m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z",
+  plus: "M12 5v14m-7-7h14",
 };
 
 export default function Icon({ name, size = 20 }) {
