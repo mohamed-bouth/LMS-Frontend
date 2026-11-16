@@ -1,5 +1,8 @@
-export default function ProtectedView({ role, allowedRole, children }) {
-  if (role?.toLowerCase() !== allowedRole.toLowerCase()) {
+export default function ProtectedView({ role, allowedRole, allowedRoles = [], children }) {
+  const roles = allowedRoles.length > 0 ? allowedRoles : [allowedRole];
+  const isAllowed = roles.some((item) => item && role?.toLowerCase() === item.toLowerCase());
+
+  if (!isAllowed) {
     return (
       <main className="grid min-h-[calc(100vh-76px)] place-items-center px-6 text-center">
         <div>
