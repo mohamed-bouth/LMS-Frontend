@@ -1,4 +1,4 @@
-import Icon from "../../components/Icon.jsx";
+import Icon from "../../../components/Icon.jsx";
 
 function StatusBadge({ status }) {
   return (

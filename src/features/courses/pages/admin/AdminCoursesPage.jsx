@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Icon from "../../components/Icon.jsx";
+import Icon from "../../../../components/Icon.jsx";
 
 export default function AdminCoursesPage({ courses, isLoading, error, onRetry, onStatusChange, onSave, onArchive }) {
   const [search, setSearch] = useState("");

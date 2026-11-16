@@ -1,6 +1,6 @@
-import Logo from "../../components/Logo.jsx";
-import LoginForm from "../../features/auth/components/LoginForm.jsx";
-import GuestLayout from "../../layouts/GuestLayout.jsx";
+import Logo from "../../../components/Logo.jsx";
+import LoginForm from "../components/LoginForm.jsx";
+import GuestLayout from "../../../layouts/GuestLayout.jsx";
 
 export default function LoginPage({ onAuthenticated, onNavigate }) {
   return (

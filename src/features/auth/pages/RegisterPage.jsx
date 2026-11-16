@@ -1,7 +1,7 @@
-import Icon from "../../components/Icon.jsx";
-import Logo from "../../components/Logo.jsx";
-import RegisterForm from "../../features/auth/components/RegisterForm.jsx";
-import GuestLayout from "../../layouts/GuestLayout.jsx";
+import Icon from "../../../components/Icon.jsx";
+import Logo from "../../../components/Logo.jsx";
+import RegisterForm from "../components/RegisterForm.jsx";
+import GuestLayout from "../../../layouts/GuestLayout.jsx";
 
 export default function RegisterPage({ onNavigate }) {
   return (

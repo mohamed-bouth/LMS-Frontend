@@ -43,14 +43,20 @@ The frontend will be extended with:
 
 ```text
 src/
-├── components/             # Shared UI components
-├── features/auth/          # Authentication components and services
+├── components/             # Shared UI components and guards
+├── features/
+│   ├── auth/               # Auth components, pages, and services
+│   ├── courses/            # Course services and admin/learner pages
+│   └── profile/            # Learner profile pages
 ├── layouts/                # Guest and authenticated layouts
-├── pages/auth/             # Login and registration pages
 ├── services/               # Shared API access
 ├── App.jsx                 # Root state and conditional navigation
 └── main.jsx                # Application entry point
 ```
+
+Feature pages are kept inside their owning feature. Course pages are separated
+by audience under `features/courses/pages/admin` and
+`features/courses/pages/learner`.
 
 ## Getting started
 

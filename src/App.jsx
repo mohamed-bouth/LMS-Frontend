@@ -2,14 +2,14 @@
 import { useState } from "react";
 import Icon from "./components/Icon.jsx";
 import ProtectedView from "./components/ProtectedView.jsx";
-import LoginPage from "./pages/auth/LoginPage.jsx";
+import LoginPage from "./features/auth/pages/LoginPage.jsx";
 import { getMyEnrollments } from "./features/courses/services/enrollmentService.js";
 import { getManagedCourses, updateCourse, updateCourseStatus } from "./features/courses/services/courseService.js";
-import AdminCoursesPage from "./pages/admin/AdminCoursesPage.jsx";
-import MyCoursesPage from "./pages/courses/MyCoursesPage.jsx";
+import AdminCoursesPage from "./features/courses/pages/admin/AdminCoursesPage.jsx";
+import MyCoursesPage from "./features/courses/pages/learner/MyCoursesPage.jsx";
 import { getCurrentProfile } from "./features/auth/services/profileService.js";
-import ProfilePage from "./pages/profile/ProfilePage.jsx";
-import RegisterPage from "./pages/auth/RegisterPage.jsx";
+import ProfilePage from "./features/profile/pages/ProfilePage.jsx";
+import RegisterPage from "./features/auth/pages/RegisterPage.jsx";
 import Sidebar from "./layouts/components/Sidebar.jsx";
 
 function App() {
