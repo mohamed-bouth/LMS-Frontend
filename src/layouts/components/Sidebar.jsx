@@ -2,8 +2,8 @@ import Icon from "../../components/Icon.jsx";
 import Logo from "../../components/Logo.jsx";
 
 export default function Sidebar({ profile, view, isOpen, onClose, onNavigate, onLogout }) {
-  const isAdmin = profile.role?.toLowerCase() === "admin";
-  const items = isAdmin
+  const canManageCourses = ["admin", "trainer"].includes(profile.role?.toLowerCase());
+  const items = canManageCourses
     ? [{ label: "Courses", icon: "courses", view: "admin-courses" }]
     : [
         { label: "My Profile", icon: "profile", view: "profile" },
@@ -29,7 +29,7 @@ export default function Sidebar({ profile, view, isOpen, onClose, onNavigate, on
             <Icon name="close" />
           </button>
         </div>
-        <div className="mb-2.5 px-3 text-[10px] font-bold uppercase tracking-[1.25px] text-[#9ca1b1]">{isAdmin ? "Admin workspace" : "Learner workspace"}</div>
+        <div className="mb-2.5 px-3 text-[10px] font-bold uppercase tracking-[1.25px] text-[#9ca1b1]">{canManageCourses ? `${profile.role} workspace` : "Learner workspace"}</div>
         <nav className="flex flex-col gap-[5px]" aria-label="Main navigation">
           {items.map((item) => {
             const active = view === item.view;

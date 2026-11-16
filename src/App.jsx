@@ -30,9 +30,11 @@ function App() {
     }
 
     const authenticatedSession = { ...nextSession, profile };
+    const role = profile.role?.toLowerCase();
+    const canManageCourses = role === "admin" || role === "trainer";
     setSession(authenticatedSession);
-    setView(profile.role?.toLowerCase() === "admin" ? "admin-courses" : "profile");
-    if (profile.role?.toLowerCase() === "admin") {
+    setView(canManageCourses ? "admin-courses" : "profile");
+    if (canManageCourses) {
       await loadManagedCourses(nextSession.token);
     }
   }
@@ -158,7 +160,7 @@ function App() {
           ) : view === "my-courses" ? (
             <MyCoursesPage enrollments={courses} isLoading={coursesLoading} error={coursesError} onRetry={loadCourses} />
           ) : view === "admin-courses" ? (
-            <ProtectedView role={session.profile.role} allowedRole="admin">
+            <ProtectedView role={session.profile.role} allowedRoles={["admin", "trainer"]}>
               <AdminCoursesPage courses={managedCourses} isLoading={managedCoursesLoading} error={managedCoursesError} onRetry={loadManagedCourses} onStatusChange={changeCourseStatus} onSave={saveCourse} onArchive={archiveCourse} />
             </ProtectedView>
           ) : (
