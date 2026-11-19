@@ -9,16 +9,16 @@ function StatusBadge({ status }) {
   );
 }
 
-export default function ProfilePage({ profile, onNavigate }) {
-  const name = profile.name || profile.email;
-  const role = profile.role || "Learner";
+export default function ProfilePage({ user, onNavigate }) {
+  const name = user.name || user.email;
+  const role = user.role || "Learner";
   const initials = name
     .split(/\s+/)
     .map((part) => part[0])
     .join("")
     .slice(0, 2)
     .toUpperCase();
-  const status = profile.status || "Active";
+  const status = user.status || "Active";
 
   return (
     <div className="mx-auto w-full max-w-[1180px] px-5 py-7 text-[#182038] sm:px-8 lg:px-10 lg:py-9">
@@ -67,7 +67,7 @@ export default function ProfilePage({ profile, onNavigate }) {
             </div>
             <div className="border-t border-[#eeeef3] py-4 sm:pl-5 sm:border-l">
               <dt className="mb-1.5 text-[10px] text-[#969baa]">Email address</dt>
-              <dd className="break-all text-xs font-semibold text-[#353b51]">{profile.email}</dd>
+              <dd className="break-all text-xs font-semibold text-[#353b51]">{user.email}</dd>
             </div>
             <div className="border-t border-[#eeeef3] py-4 sm:pr-5">
               <dt className="mb-1.5 text-[10px] text-[#969baa]">Role</dt>
@@ -91,7 +91,7 @@ export default function ProfilePage({ profile, onNavigate }) {
           <button
             className="inline-flex h-10 items-center justify-center gap-2 rounded-[9px] bg-[#4f46d9] px-4 text-xs font-semibold text-white shadow-[0_5px_12px_rgba(79,70,217,0.18)] transition hover:bg-[#4338ca]"
             type="button"
-            onClick={() => onNavigate("my-courses")}
+            onClick={() => onNavigate("myCourses")}
           >
             View my courses
             <Icon name="arrow" size={17} />

@@ -1,205 +1,178 @@
-
 import { useState } from "react";
-import Icon from "./components/Icon.jsx";
+import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+
 import ProtectedView from "./components/ProtectedView.jsx";
+import AuthenticatedLayout from "./layouts/AuthenticatedLayout.jsx";
 import LoginPage from "./features/auth/pages/LoginPage.jsx";
-import { getMyEnrollments } from "./features/courses/services/enrollmentService.js";
-import { getManagedCourses, updateCourse, updateCourseStatus } from "./features/courses/services/courseService.js";
-import { createCourse } from "./features/courses/services/courseService.js";
+import RegisterPage from "./features/auth/pages/RegisterPage.jsx";
+import ProfilePage from "./features/profile/pages/ProfilePage.jsx";
 import AdminCoursesPage from "./features/courses/pages/admin/AdminCoursesPage.jsx";
 import CreateCoursePage from "./features/courses/pages/admin/CreateCoursePage.jsx";
+import EditCoursePage from "./features/courses/pages/admin/EditCoursePage.jsx";
 import MyCoursesPage from "./features/courses/pages/learner/MyCoursesPage.jsx";
+
 import { getCurrentProfile } from "./features/auth/services/profileService.js";
-import ProfilePage from "./features/profile/pages/ProfilePage.jsx";
-import RegisterPage from "./features/auth/pages/RegisterPage.jsx";
-import Sidebar from "./layouts/components/Sidebar.jsx";
+import useCourses from "./features/courses/hooks/useCourses.js";
 
 function App() {
-  const [view, setView] = useState("login");
+  const routerNavigate = useNavigate();
+  const location = useLocation();
+
   const [session, setSession] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [courses, setCourses] = useState([]);
-  const [coursesLoading, setCoursesLoading] = useState(false);
-  const [coursesError, setCoursesError] = useState("");
-  const [managedCourses, setManagedCourses] = useState([]);
-  const [managedCoursesLoading, setManagedCoursesLoading] = useState(false);
-  const [managedCoursesError, setManagedCoursesError] = useState("");
+
+  const courseData = useCourses(
+    session?.token,
+    location.pathname,
+    setSession,
+    routerNavigate,
+  );
+
+  const viewByPath = {
+    "/profile": "profile",
+    "/courses/my": "myCourses",
+    "/admin/courses": "adminCourses",
+    "/admin/courses/new": "createCourse",
+  };
+
+  console.log(location.pathname)
+  const view = location.pathname.endsWith("/edit")
+    ? "adminCourses"
+    : viewByPath[location.pathname] || "";
 
   async function handleAuthenticated(nextSession) {
-    const profile = await getCurrentProfile(nextSession.token);
-    if (!profile) {
+    const user = await getCurrentProfile(nextSession.token);
+    if (!user) {
       throw new Error("The authenticated profile is missing.");
     }
 
-    const authenticatedSession = { ...nextSession, profile };
-    const role = profile.role?.toLowerCase();
-    const canManageCourses = role === "admin" || role === "trainer";
-    setSession(authenticatedSession);
-    setView(canManageCourses ? "admin-courses" : "profile");
-    if (canManageCourses) {
-      await loadManagedCourses(nextSession.token);
-    }
-  }
-
-  async function loadCourses() {
-    setView("my-courses");
-    setCoursesLoading(true);
-    setCoursesError("");
-    try {
-      setCourses(await getMyEnrollments(session.token));
-    } catch (error) {
-      if (error.status === 401) {
-        setSession(null);
-        setView("login");
-      } else if (error.status === 403) {
-        setCoursesError("Accès refusé.");
-      } else {
-        setCoursesError("Unable to load your courses.");
-      }
-    } finally {
-      setCoursesLoading(false);
-    }
+    setSession({ ...nextSession, user });
+    const isManager = ["admin", "trainer"].includes(user.role?.toLowerCase());
+    routerNavigate(isManager ? "/admin/courses" : "/profile", { replace: true });
   }
 
   function navigate(nextView) {
-    if (nextView === "my-courses") {
-      loadCourses();
+    const paths = {
+      login: "/login",
+      register: "/register",
+      profile: "/profile",
+      myCourses: "/courses/my",
+      adminCourses: "/admin/courses",
+      createCourse: "/admin/courses/new",
+    };
+    const path = paths[nextView];
+    if (!path) return;
+
+    if (location.pathname === path) {
+      if (nextView === "myCourses") courseData.retryCourses();
+      if (nextView === "adminCourses") courseData.retryManagedCourses();
       return;
     }
-    if (nextView === "admin-courses") {
-      loadManagedCourses();
-      return;
-    }
-    setView(nextView);
+
+    routerNavigate(path);
   }
 
-  async function loadManagedCourses(token = session?.token) {
-    setView("admin-courses");
-    setManagedCoursesLoading(true);
-    setManagedCoursesError("");
-    try {
-      setManagedCourses(await getManagedCourses(token));
-    } catch (error) {
-      if (error.status === 401) {
-        setSession(null);
-        setView("login");
-      } else if (error.status === 403) {
-        setManagedCoursesError("Accès refusé.");
-      } else {
-        setManagedCoursesError("Unable to load courses.");
-      }
-    } finally {
-      setManagedCoursesLoading(false);
-    }
-  }
+  const isManager = ["admin", "trainer"].includes(
+    session?.user?.role?.toLowerCase(),
+  );
 
-  async function changeCourseStatus(course) {
-    const action = course.status === "published" ? "unpublish" : "publish";
-    try {
-      await updateCourseStatus(session.token, course._id, action);
-      await loadManagedCourses();
-    } catch (error) {
-      if (error.status === 401) {
-        setSession(null);
-        setView("login");
-      } else if (error.status === 403) {
-        setManagedCoursesError("Accès refusé.");
-      } else {
-        setManagedCoursesError("Unable to update the course.");
-      }
-    }
-  }
-
-  async function saveCourse(courseId, changes) {
-    try {
-      await updateCourse(session.token, courseId, changes);
-      await loadManagedCourses();
-    } catch (error) {
-      setManagedCoursesError(error.status === 403 ? "Accès refusé." : "Unable to update the course.");
-    }
-  }
-
-  async function archiveCourse(course) {
-    try {
-      await updateCourseStatus(session.token, course._id, "archived");
-      await loadManagedCourses();
-    } catch (error) {
-      setManagedCoursesError(error.status === 403 ? "Accès refusé." : "Unable to archive the course.");
-    }
-  }
-
-  async function handleCreateCourse(course) {
-    try {
-      await createCourse(session.token, course);
-      await loadManagedCourses();
-    } catch (error) {
-      if (error.status === 401) {
-        setSession(null);
-        setView("login");
-      }
-      throw error;
-    }
-  }
-
-  if (session) {
-    return (
-      <div className="min-h-screen bg-[#fafafe] text-[#182038]">
-        <Sidebar
-          profile={session.profile}
-          view={view}
-          isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-          onNavigate={navigate}
-          onLogout={() => {
-            setSession(null);
-            setView("login");
-          }}
-        />
-        <div className="min-h-screen lg:ml-[250px]">
-          <header className="flex h-[76px] items-center border-b border-[#e7e8ef] bg-white px-5 sm:px-8 lg:px-10">
-            <button className="mr-4 text-[#4f46d9] lg:hidden" type="button" aria-label="Open navigation" onClick={() => setSidebarOpen(true)}>
-              <Icon name="menu" size={22} />
-            </button>
-            <div className="ml-auto flex items-center gap-2.5">
-              <div className="grid h-9 w-9 place-items-center rounded-full bg-[#dcecff] text-[11px] font-bold text-[#2b63a7]">
-                {(session.profile.name || session.profile.email).slice(0, 1).toUpperCase()}
-              </div>
-              <div className="hidden sm:block">
-                <p className="text-xs font-semibold">{session.profile.name || session.profile.email}</p>
-                <p className="text-[10px] text-[#969baa]">{session.profile.role}</p>
-              </div>
-            </div>
-          </header>
-          {view === "profile" ? (
-            <ProfilePage profile={session.profile} onNavigate={navigate} />
-          ) : view === "my-courses" ? (
-            <MyCoursesPage enrollments={courses} isLoading={coursesLoading} error={coursesError} onRetry={loadCourses} />
-          ) : view === "admin-courses" ? (
-            <ProtectedView role={session.profile.role} allowedRoles={["admin", "trainer"]}>
-              <AdminCoursesPage courses={managedCourses} isLoading={managedCoursesLoading} error={managedCoursesError} onRetry={loadManagedCourses} onStatusChange={changeCourseStatus} onSave={saveCourse} onArchive={archiveCourse} onCreate={() => setView("create-course")} />
-            </ProtectedView>
-          ) : view === "create-course" ? (
-            <ProtectedView role={session.profile.role} allowedRoles={["admin", "trainer"]}>
-              <CreateCoursePage onBack={() => setView("admin-courses")} onCreate={handleCreateCourse} />
-            </ProtectedView>
+  return (
+    <Routes>
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route
+        path="/login"
+        element={<LoginPage onAuthenticated={handleAuthenticated} onNavigate={navigate} />}
+      />
+      <Route
+        path="/register"
+        element={<RegisterPage onNavigate={navigate} />}
+      />
+      <Route
+        element={
+          session ? (
+            <AuthenticatedLayout
+              user={session.user}
+              view={view}
+              sidebarOpen={sidebarOpen}
+              onCloseSidebar={() => setSidebarOpen(false)}
+              onOpenSidebar={() => setSidebarOpen(true)}
+              onNavigate={navigate}
+              onLogout={() => {
+                setSession(null);
+                routerNavigate("/login", { replace: true });
+              }}
+            />
           ) : (
-            <main className="grid min-h-[calc(100vh-76px)] place-items-center px-6 text-center">
-              <div>
-                <h1 className="font-['Poppins'] text-2xl text-[#202647]">My Courses</h1>
-                <p className="mt-2 text-sm text-[#697188]">Your enrolled courses will appear here.</p>
-              </div>
-            </main>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  if (view === "register") {
-    return <RegisterPage onNavigate={setView} />;
-  }
-
-  return <LoginPage onAuthenticated={handleAuthenticated} onNavigate={setView} />;
+            <Navigate to="/login" replace />
+          )
+        }
+      >
+        <Route
+          path="/profile"
+          element={<ProfilePage user={session?.user} onNavigate={navigate} />}
+        />
+        <Route
+          path="/courses/my"
+          element={
+            <MyCoursesPage
+              enrollments={courseData.courses}
+              isLoading={courseData.coursesLoading}
+              error={courseData.coursesError}
+              onRetry={courseData.retryCourses}
+            />
+          }
+        />
+        <Route
+          path="/admin/courses"
+          element={
+            <ProtectedView role={session?.user?.role} allowedRoles={["admin", "trainer"]}>
+              <AdminCoursesPage
+                courses={courseData.managedCourses}
+                isLoading={courseData.managedCoursesLoading}
+                error={courseData.managedCoursesError}
+                onRetry={courseData.retryManagedCourses}
+                onEdit={(course) => routerNavigate(`/admin/courses/${course._id}/edit`)}
+                onStatusChange={courseData.changeCourseStatus}
+                onArchive={courseData.archiveCourse}
+                onCreate={() => navigate("createCourse")}
+              />
+            </ProtectedView>
+          }
+        />
+        <Route
+          path="/admin/courses/new"
+          element={
+            <ProtectedView role={session?.user?.role} allowedRoles={["admin", "trainer"]}>
+              <CreateCoursePage
+                onBack={() => navigate("adminCourses")}
+                onCreate={courseData.handleCreateCourse}
+              />
+            </ProtectedView>
+          }
+        />
+        <Route
+          path="/admin/courses/:courseId/edit"
+          element={
+            <ProtectedView role={session?.user?.role} allowedRoles={["admin", "trainer"]}>
+              <EditCoursePage courses={courseData.managedCourses}
+                isLoading={courseData.managedCoursesLoading}
+                onBack={() => navigate("adminCourses")}
+                onSave={courseData.saveCourse}/>
+            </ProtectedView>
+          }
+        />
+      </Route>
+      <Route
+        path="*"
+        element={
+          <Navigate
+            to={session ? (isManager ? "/admin/courses" : "/profile") : "/login"}
+            replace
+          />
+        }
+      />
+    </Routes>
+  );
 }
 
-export default App
+export default App;
