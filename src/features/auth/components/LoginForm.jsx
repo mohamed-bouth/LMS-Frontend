@@ -42,11 +42,7 @@ export default function LoginForm({ onAuthenticated, onNavigate }) {
         setError("The login response is invalid.");
         return;
       }
-      const profile = {
-        ...(session.data?.user || session.profile || {}),
-        email: session.data?.user?.email || session.profile?.email || values.email.trim(),
-      };
-      await onAuthenticated({ ...session, profile });
+      await onAuthenticated(session);
     } catch{
       setError("Unable to reach the authentication service.");
     } finally {
