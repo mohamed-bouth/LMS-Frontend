@@ -1,5 +1,11 @@
-import { useState } from "react";
-import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import {
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 
 import ProtectedView from "./components/ProtectedView.jsx";
 import AuthenticatedLayout from "./layouts/AuthenticatedLayout.jsx";
@@ -13,13 +19,33 @@ import MyCoursesPage from "./features/courses/pages/learner/MyCoursesPage.jsx";
 
 import { getCurrentProfile } from "./features/auth/services/profileService.js";
 import useCourses from "./features/courses/hooks/useCourses.js";
+import CourseModules from "./features/modules/pages/learner/CourseModules.jsx";
 
 function App() {
   const routerNavigate = useNavigate();
   const location = useLocation();
 
-  const [session, setSession] = useState(null);
+  const [session, setSession] = useState(() => {
+    try {
+      const savedSession = sessionStorage.getItem("lms-session");
+      return savedSession ? JSON.parse(savedSession) : null;
+    } catch {
+      sessionStorage.removeItem("lms-session");
+      return null;
+    }
+  });
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (session?.token) {
+      sessionStorage.setItem(
+        "lms-session",
+        JSON.stringify({ token: session.token, user: session.user }),
+      );
+    } else {
+      sessionStorage.removeItem("lms-session");
+    }
+  }, [session]);
 
   const courseData = useCourses(
     session?.token,
@@ -27,18 +53,6 @@ function App() {
     setSession,
     routerNavigate,
   );
-
-  const viewByPath = {
-    "/profile": "profile",
-    "/courses/my": "myCourses",
-    "/admin/courses": "adminCourses",
-    "/admin/courses/new": "createCourse",
-  };
-
-  console.log(location.pathname)
-  const view = location.pathname.endsWith("/edit")
-    ? "adminCourses"
-    : viewByPath[location.pathname] || "";
 
   async function handleAuthenticated(nextSession) {
     const user = await getCurrentProfile(nextSession.token);
@@ -48,7 +62,9 @@ function App() {
 
     setSession({ ...nextSession, user });
     const isManager = ["admin", "trainer"].includes(user.role?.toLowerCase());
-    routerNavigate(isManager ? "/admin/courses" : "/profile", { replace: true });
+    routerNavigate(isManager ? "/admin/courses" : "/profile", {
+      replace: true,
+    });
   }
 
   function navigate(nextView) {
@@ -57,6 +73,7 @@ function App() {
       register: "/register",
       profile: "/profile",
       myCourses: "/courses/my",
+      courseModules: "/courses/modules",
       adminCourses: "/admin/courses",
       createCourse: "/admin/courses/new",
     };
@@ -81,7 +98,12 @@ function App() {
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route
         path="/login"
-        element={<LoginPage onAuthenticated={handleAuthenticated} onNavigate={navigate} />}
+        element={
+          <LoginPage
+            onAuthenticated={handleAuthenticated}
+            onNavigate={navigate}
+          />
+        }
       />
       <Route
         path="/register"
@@ -92,7 +114,6 @@ function App() {
           session ? (
             <AuthenticatedLayout
               user={session.user}
-              view={view}
               sidebarOpen={sidebarOpen}
               onCloseSidebar={() => setSidebarOpen(false)}
               onOpenSidebar={() => setSidebarOpen(true)}
@@ -109,7 +130,7 @@ function App() {
       >
         <Route
           path="/profile"
-          element={<ProfilePage user={session?.user} onNavigate={navigate} />}
+          element={<ProfilePage user={session?.user}/>}
         />
         <Route
           path="/courses/my"
@@ -123,15 +144,24 @@ function App() {
           }
         />
         <Route
+          path="/courses/modules"
+          element={<CourseModules></CourseModules>}
+        />
+        <Route
           path="/admin/courses"
           element={
-            <ProtectedView role={session?.user?.role} allowedRoles={["admin", "trainer"]}>
+            <ProtectedView
+              role={session?.user?.role}
+              allowedRoles={["admin", "trainer"]}
+            >
               <AdminCoursesPage
                 courses={courseData.managedCourses}
                 isLoading={courseData.managedCoursesLoading}
                 error={courseData.managedCoursesError}
                 onRetry={courseData.retryManagedCourses}
-                onEdit={(course) => routerNavigate(`/admin/courses/${course._id}/edit`)}
+                onEdit={(course) =>
+                  routerNavigate(`/admin/courses/${course._id}/edit`)
+                }
                 onStatusChange={courseData.changeCourseStatus}
                 onArchive={courseData.archiveCourse}
                 onCreate={() => navigate("createCourse")}
@@ -142,7 +172,10 @@ function App() {
         <Route
           path="/admin/courses/new"
           element={
-            <ProtectedView role={session?.user?.role} allowedRoles={["admin", "trainer"]}>
+            <ProtectedView
+              role={session?.user?.role}
+              allowedRoles={["admin", "trainer"]}
+            >
               <CreateCoursePage
                 onBack={() => navigate("adminCourses")}
                 onCreate={courseData.handleCreateCourse}
@@ -153,11 +186,16 @@ function App() {
         <Route
           path="/admin/courses/:courseId/edit"
           element={
-            <ProtectedView role={session?.user?.role} allowedRoles={["admin", "trainer"]}>
-              <EditCoursePage courses={courseData.managedCourses}
+            <ProtectedView
+              role={session?.user?.role}
+              allowedRoles={["admin", "trainer"]}
+            >
+              <EditCoursePage
+                courses={courseData.managedCourses}
                 isLoading={courseData.managedCoursesLoading}
                 onBack={() => navigate("adminCourses")}
-                onSave={courseData.saveCourse}/>
+                onSave={courseData.saveCourse}
+              />
             </ProtectedView>
           }
         />
@@ -166,7 +204,9 @@ function App() {
         path="*"
         element={
           <Navigate
-            to={session ? (isManager ? "/admin/courses" : "/profile") : "/login"}
+            to={
+              session ? (isManager ? "/admin/courses" : "/profile") : "/login"
+            }
             replace
           />
         }

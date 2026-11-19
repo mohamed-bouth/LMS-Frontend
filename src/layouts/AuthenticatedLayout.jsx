@@ -4,7 +4,6 @@ import { Outlet } from "react-router-dom";
 
 export default function AuthenticatedLayout({
   user,
-  view,
   sidebarOpen,
   onCloseSidebar,
   onOpenSidebar,
@@ -16,7 +15,6 @@ export default function AuthenticatedLayout({
     <div className="min-h-screen bg-[#fafafe] text-[#182038]">
       <Sidebar
         user={user}
-        view={view}
         isOpen={sidebarOpen}
         onClose={onCloseSidebar}
         onNavigate={onNavigate}
