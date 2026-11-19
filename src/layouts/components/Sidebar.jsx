@@ -1,15 +1,15 @@
 import Icon from "../../components/Icon.jsx";
 import Logo from "../../components/Logo.jsx";
 
-export default function Sidebar({ profile, view, isOpen, onClose, onNavigate, onLogout }) {
-  const canManageCourses = ["admin", "trainer"].includes(profile.role?.toLowerCase());
+export default function Sidebar({ user, view, isOpen, onClose, onNavigate, onLogout }) {
+  const canManageCourses = ["admin", "trainer"].includes(user.role?.toLowerCase());
   const items = canManageCourses
-    ? [{ label: "Courses", icon: "courses", view: "admin-courses" }]
+    ? [{ label: "Courses", icon: "courses", view: "adminCourses" }]
     : [
         { label: "My Profile", icon: "profile", view: "profile" },
-        { label: "My Courses", icon: "courses", view: "my-courses" },
+        { label: "My Courses", icon: "courses", view: "myCourses" },
       ];
-  const name = profile.name || profile.email;
+  const name = user.name || user.email;
   const initials = name
     .split(/\s+/)
     .map((part) => part[0])
@@ -29,7 +29,7 @@ export default function Sidebar({ profile, view, isOpen, onClose, onNavigate, on
             <Icon name="close" />
           </button>
         </div>
-        <div className="mb-2.5 px-3 text-[10px] font-bold uppercase tracking-[1.25px] text-[#9ca1b1]">{canManageCourses ? `${profile.role} workspace` : "Learner workspace"}</div>
+        <div className="mb-2.5 px-3 text-[10px] font-bold uppercase tracking-[1.25px] text-[#9ca1b1]">{canManageCourses ? `${user.role} workspace` : "Learner workspace"}</div>
         <nav className="flex flex-col gap-[5px]" aria-label="Main navigation">
           {items.map((item) => {
             const active = view === item.view;
@@ -61,7 +61,7 @@ export default function Sidebar({ profile, view, isOpen, onClose, onNavigate, on
           <div className="grid h-9 w-9 place-items-center rounded-full bg-[#dcecff] text-[11px] font-bold text-[#2b63a7]">{initials}</div>
           <div className="flex min-w-0 flex-col">
             <strong className="truncate text-[11px]">{name}</strong>
-            <span className="mt-0.5 text-[10px] text-[#969baa]">{profile.role}</span>
+            <span className="mt-0.5 text-[10px] text-[#969baa]">{user.role}</span>
           </div>
           <button className="text-[#8e94a3] transition hover:text-[#d34b65]" type="button" aria-label="Log out" onClick={onLogout}>
             <Icon name="logout" size={18} />
