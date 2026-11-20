@@ -1,11 +1,9 @@
 import Icon from "../../../components/Icon.jsx";
 import Logo from "../../../components/Logo.jsx";
 import RegisterForm from "../components/RegisterForm.jsx";
-import GuestLayout from "../../../layouts/GuestLayout.jsx";
 
 export default function RegisterPage({ onNavigate }) {
   return (
-    <GuestLayout>
       <main className="grid min-h-screen grid-cols-1 bg-white min-[801px]:grid-cols-[minmax(420px,1.07fr)_minmax(500px,0.93fr)]">
         <section className="relative flex min-h-screen flex-col items-center justify-start px-7 py-7 min-[621px]:py-[35px] min-[801px]:min-h-[700px] min-[801px]:justify-center min-[801px]:px-10 min-[801px]:pb-[35px]">
           <div className="mb-[38px] block w-full max-w-[470px] min-[801px]:hidden">
@@ -55,6 +53,5 @@ export default function RegisterPage({ onNavigate }) {
           <div className="absolute bottom-[-170px] left-[-180px] h-[330px] w-[330px] rounded-full border border-[rgba(80,70,190,0.11)] shadow-[0_0_0_70px_rgba(255,255,255,0.12)]" />
         </section>
       </main>
-    </GuestLayout>
   );
 }

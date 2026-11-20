@@ -1,39 +1,32 @@
 # LMS Frontend
 
-React frontend for a Learning Management System (LMS). The application will
-provide separate experiences for administrators managing users and courses and
-learners viewing their profile, enrolments, and progress.
+React frontend for a Learning Management System (LMS), with separate learner
+and administrator/trainer experiences.
 
-## Current status
+## Current functionality
 
-The current foundation includes:
+- Login and registration forms with controlled inputs, validation, loading, and
+  error states.
+- React Router navigation for guest and authenticated pages.
+- In-memory authenticated session synchronized with `sessionStorage`. The
+  session survives a page refresh and is cleared when the browser tab closes or
+  the user logs out.
+- User profile page and learner enrolled-courses page, including search and
+  loading, error, retry, and empty states.
+- Administrator/trainer course catalogue management: list, search, create,
+  edit, publish/unpublish, and archive courses.
+- Role-restricted course management routes.
+- A course modules route at `/courses/modules`; its page is currently a basic
+  placeholder and is not yet connected to module data.
 
-- Responsive login and registration pages.
-- Controlled authentication forms with synchronous validation.
-- Backend requests for:
-  - `POST /api/auth/login`
-  - `POST /api/auth/register`
-- Loading, success, and error states for authentication requests.
-- In-memory session handling after a successful login.
-- Login and registration navigation without a client-side router.
-
-The authenticated response is expected to contain a token and a certified user
-profile, including the user's role. The frontend does not persist the session
-in local storage.
-
-## Planned functionality
-
-The frontend will be extended with:
-
-- Role-protected administrator views for user and course management.
-- Learner views for profile, enrolled courses, modules, and progress.
-- Explicit handling of unauthorized, forbidden, validation, conflict, and server
-  responses.
-- Shared layouts and reusable components for authenticated areas.
+Authentication uses `POST /api/auth/login` and `POST /api/auth/register`. After
+login, the frontend fetches the current user profile and uses the backend role
+to route the user to the appropriate area.
 
 ## Technology
 
 - React with functional components and JSX
+- React Router
 - Vite
 - Tailwind CSS
 - JavaScript modules
@@ -43,20 +36,25 @@ The frontend will be extended with:
 
 ```text
 src/
-├── components/             # Shared UI components and guards
+├── components/                 # Shared UI components and role guard
 ├── features/
-│   ├── auth/               # Auth components, pages, and services
-│   ├── courses/            # Course services and admin/learner pages
-│   └── profile/            # Learner profile pages
-├── layouts/                # Guest and authenticated layouts
-├── services/               # Shared API access
-├── App.jsx                 # Root state and conditional navigation
-└── main.jsx                # Application entry point
+│   ├── auth/                   # Login, registration, and profile services
+│   ├── courses/
+│   │   ├── hooks/              # Course state, loading, and actions
+│   │   ├── pages/admin/        # Course list, create, and edit pages
+│   │   ├── pages/learner/      # Learner course pages
+│   │   └── services/           # Course and enrollment API requests
+│   ├── modules/pages/learner/  # Course modules page
+│   └── profile/pages/          # Learner profile page
+├── layouts/                    # Guest and authenticated layouts
+├── services/                   # Shared API access
+├── App.jsx                     # Session, routes, and page composition
+└── main.jsx                    # Application entry point and BrowserRouter
 ```
 
-Feature pages are kept inside their owning feature. Course pages are separated
-by audience under `features/courses/pages/admin` and
-`features/courses/pages/learner`.
+Course-specific state and actions live in `features/courses/hooks/useCourses.js`;
+API request functions stay in the feature service modules. Admin and learner
+pages are separated under `features/courses/pages`.
 
 ## Getting started
 
@@ -84,16 +82,18 @@ Then start the development server:
 npm run dev
 ```
 
+The Vite development server is configured to use port `5000` by default.
+
 ## Available scripts
 
 | Command | Description |
 | --- | --- |
-| `npm run dev` | Start the Vite development server |
+| `npm run dev` | Start the Vite development server on port 5000 |
 | `npm run build` | Create a production build |
 | `npm run preview` | Preview the production build |
 | `npm run lint` | Run ESLint |
 
-## Development guidelines
+## Project guidance
 
-See [`AGENTS.md`](./AGENTS.md) for the project architecture, authentication
-rules, UX requirements, and validation conventions.
+See [`AGENTS.md`](./AGENTS.md) for architecture, authentication, UX, and code
+validation guidance.

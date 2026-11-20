@@ -1,14 +1,29 @@
 import Icon from "../../components/Icon.jsx";
 import Logo from "../../components/Logo.jsx";
 
-export default function Sidebar({ user, view, isOpen, onClose, onNavigate, onLogout }) {
-  const canManageCourses = ["admin", "trainer"].includes(user.role?.toLowerCase());
-  const items = canManageCourses
-    ? [{ label: "Courses", icon: "courses", view: "adminCourses" }]
-    : [
-        { label: "My Profile", icon: "profile", view: "profile" },
-        { label: "My Courses", icon: "courses", view: "myCourses" },
-      ];
+export default function Sidebar({ user, isOpen, onClose, onNavigate, onLogout }) {
+
+  const role = user.role.toLowerCase()
+  let items
+
+  if(role === "admin"){
+    items = [
+      { label: "Courses", icon: "courses", view: "adminCourses" },
+      { label: "My Profile", icon: "profile", view: "profile" }
+    ]
+  }else if(role === "trainer"){
+    items = [
+      { label: "Courses", icon: "courses", view: "adminCourses" },
+      { label: "My Profile", icon: "profile", view: "profile" }
+    ]
+  }else{
+    items = [
+      { label: "My Profile", icon: "profile", view: "profile" },
+      { label: "My Courses", icon: "courses", view: "myCourses" },
+      { label: "Modules", icon: "file", view: "courseModules"}
+    ]
+  }
+
   const name = user.name || user.email;
   const initials = name
     .split(/\s+/)
@@ -29,13 +44,12 @@ export default function Sidebar({ user, view, isOpen, onClose, onNavigate, onLog
             <Icon name="close" />
           </button>
         </div>
-        <div className="mb-2.5 px-3 text-[10px] font-bold uppercase tracking-[1.25px] text-[#9ca1b1]">{canManageCourses ? `${user.role} workspace` : "Learner workspace"}</div>
+        <div className="mb-2.5 px-3 text-[10px] font-bold uppercase tracking-[1.25px] text-[#9ca1b1]">{role === 'admin' || role === "trainer" ? `${user.role} workspace` : "Learner workspace"}</div>
         <nav className="flex flex-col gap-[5px]" aria-label="Main navigation">
           {items.map((item) => {
-            const active = view === item.view;
             return (
               <button
-                className={`relative flex h-[46px] w-full items-center gap-3 rounded-[9px] px-[13px] text-left text-sm font-medium transition ${active ? "bg-[#eeedff] font-semibold text-[#4f46d9]" : "text-[#656d82] hover:bg-[#f7f7fb] hover:text-[#353c58]"}`}
+                className={`relative flex h-[46px] w-full items-center gap-3 rounded-[9px] px-[13px] text-left text-sm font-medium transition text-[#656d82] hover:bg-[#f7f7fb] hover:text-[#353c58]`}
                 key={item.view}
                 type="button"
                 onClick={() => {
@@ -45,7 +59,6 @@ export default function Sidebar({ user, view, isOpen, onClose, onNavigate, onLog
               >
                 <Icon name={item.icon} />
                 <span>{item.label}</span>
-                {active && <span className="absolute -right-[18px] h-6 w-[3px] rounded-l bg-[#4f46d9]" />}
               </button>
             );
           })}

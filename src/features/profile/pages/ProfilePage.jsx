@@ -9,7 +9,7 @@ function StatusBadge({ status }) {
   );
 }
 
-export default function ProfilePage({ user, onNavigate }) {
+export default function ProfilePage({ user }) {
   const name = user.name || user.email;
   const role = user.role || "Learner";
   const initials = name
@@ -49,7 +49,6 @@ export default function ProfilePage({ user, onNavigate }) {
         </div>
       </section>
 
-      <div className="grid gap-5 lg:grid-cols-[1.7fr_1fr]">
         <section className="rounded-xl border border-[#e7e8ef] bg-white p-5 shadow-[0_8px_24px_rgba(30,34,65,0.05)] sm:p-[25px]">
           <div className="mb-2 flex items-center gap-3">
             <span className="grid h-9 w-9 place-items-center rounded-[10px] bg-[#eeedff] text-[#4f46d9]">
@@ -81,23 +80,6 @@ export default function ProfilePage({ user, onNavigate }) {
             </div>
           </dl>
         </section>
-
-        <aside className="rounded-xl border border-[#dedbf8] bg-gradient-to-br from-[#f7f6ff] to-[#efedff] p-5 shadow-[0_8px_24px_rgba(30,34,65,0.05)] sm:p-[25px]">
-          <span className="grid h-[46px] w-[46px] place-items-center rounded-[11px] bg-[#4f46d9] text-white shadow-[0_8px_18px_rgba(79,70,217,0.2)]">
-            <Icon name="courses" size={24} />
-          </span>
-          <h3 className="mt-[18px] text-[15px] font-semibold text-[#30364d]">Your learning space</h3>
-          <p className="my-2.5 text-[11px] leading-[1.6] text-[#6f7589]">Access the courses you&apos;re enrolled in and continue building your skills.</p>
-          <button
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-[9px] bg-[#4f46d9] px-4 text-xs font-semibold text-white shadow-[0_5px_12px_rgba(79,70,217,0.18)] transition hover:bg-[#4338ca]"
-            type="button"
-            onClick={() => onNavigate("myCourses")}
-          >
-            View my courses
-            <Icon name="arrow" size={17} />
-          </button>
-        </aside>
-      </div>
     </div>
   );
 }
