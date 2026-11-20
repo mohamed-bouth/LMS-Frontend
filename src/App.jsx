@@ -9,6 +9,8 @@ import {
 
 import ProtectedView from "./components/ProtectedView.jsx";
 import AuthenticatedLayout from "./layouts/AuthenticatedLayout.jsx";
+import GuestLayout from "./layouts/GuestLayout.jsx";
+
 import LoginPage from "./features/auth/pages/LoginPage.jsx";
 import RegisterPage from "./features/auth/pages/RegisterPage.jsx";
 import ProfilePage from "./features/profile/pages/ProfilePage.jsx";
@@ -93,26 +95,10 @@ function App() {
     session?.user?.role?.toLowerCase(),
   );
 
-  return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route
-        path="/login"
-        element={
-          <LoginPage
-            onAuthenticated={handleAuthenticated}
-            onNavigate={navigate}
-          />
-        }
-      />
-      <Route
-        path="/register"
-        element={<RegisterPage onNavigate={navigate} />}
-      />
-      <Route
-        element={
-          session ? (
-            <AuthenticatedLayout
+  let layout
+
+  if(session){
+    layout = <AuthenticatedLayout
               user={session.user}
               sidebarOpen={sidebarOpen}
               onCloseSidebar={() => setSidebarOpen(false)}
@@ -120,14 +106,31 @@ function App() {
               onNavigate={navigate}
               onLogout={() => {
                 setSession(null);
-                routerNavigate("/login", { replace: true });
-              }}
+                routerNavigate("/login", { replace: true })
+              }}/>;
+  }else{
+    layout = <Navigate to="/login" replace />
+  }
+
+  return (
+    <Routes>
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route element={<GuestLayout/>}>
+        <Route
+          path="/login"
+          element={
+            <LoginPage
+              onAuthenticated={handleAuthenticated}
+              onNavigate={navigate}
             />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        }
-      >
+          }
+        />
+        <Route
+          path="/register"
+          element={<RegisterPage onNavigate={navigate} />}
+        />
+      </Route>
+      <Route element={layout}>
         <Route
           path="/profile"
           element={<ProfilePage user={session?.user}/>}

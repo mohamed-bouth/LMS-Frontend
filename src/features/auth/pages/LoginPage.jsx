@@ -1,10 +1,8 @@
 import Logo from "../../../components/Logo.jsx";
 import LoginForm from "../components/LoginForm.jsx";
-import GuestLayout from "../../../layouts/GuestLayout.jsx";
 
 export default function LoginPage({ onAuthenticated, onNavigate }) {
   return (
-    <GuestLayout>
       <main className="grid min-h-screen grid-cols-1 bg-white min-[801px]:grid-cols-[minmax(420px,1.07fr)_minmax(500px,0.93fr)]">
         <section className="relative hidden min-h-[700px] overflow-hidden bg-gradient-to-br from-[#f0f0ff] via-[#e6e7ff] to-[#f5f1ff] px-12 py-[45px] min-[801px]:block min-[1101px]:px-[clamp(42px,6vw,92px)]">
           <div className="relative z-[2]">
@@ -60,6 +58,5 @@ export default function LoginPage({ onAuthenticated, onNavigate }) {
           </p>
         </section>
       </main>
-    </GuestLayout>
   );
 }

@@ -9,7 +9,6 @@ export default function AuthenticatedLayout({
   onOpenSidebar,
   onNavigate,
   onLogout,
-  children,
 }) {
   return (
     <div className="min-h-screen bg-[#fafafe] text-[#182038]">
@@ -40,7 +39,7 @@ export default function AuthenticatedLayout({
             </div>
           </div>
         </header>
-        {children ?? <Outlet />}
+        <Outlet />
       </div>
     </div>
   );
