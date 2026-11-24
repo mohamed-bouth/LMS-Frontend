@@ -1,4 +1,5 @@
 import Icon from "../../../components/Icon.jsx";
+import HeroSection from "../../../layouts/components/HeroSection.jsx";
 
 function StatusBadge({ status }) {
   return (
@@ -21,13 +22,9 @@ export default function ProfilePage({ user }) {
   const status = user.status || "Active";
 
   return (
+    <>
+    <HeroSection secondTitle="managment" mainTitle="profile" description="Manage you Profile information"/>
     <div className="mx-auto w-full max-w-[1180px] px-5 py-7 text-[#182038] sm:px-8 lg:px-10 lg:py-9">
-      <div className="mb-6">
-        <p className="text-[10px] font-bold uppercase tracking-[1.4px] text-[#7770e6]">My account</p>
-        <h1 className="mt-1.5 font-['Poppins'] text-[27px] tracking-[-1px] text-[#202647]">My Profile</h1>
-        <p className="mt-1.5 text-[13px] text-[#858b9b]">View your personal information and account details.</p>
-      </div>
-
       <section className="mb-5 overflow-hidden rounded-xl border border-[#e7e8ef] bg-white shadow-[0_8px_24px_rgba(30,34,65,0.05)]">
         <div className="relative grid h-[116px] place-items-center overflow-hidden bg-gradient-to-br from-[#4641b6] via-[#6d65dd] to-[#8f72dd] text-white before:absolute before:inset-0 before:opacity-[0.18] before:[background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] before:[background-size:20px_20px]">
           <div className="absolute -right-[90px] -top-[210px] h-[350px] w-[350px] rounded-full border border-white/20 shadow-[0_0_0_50px_rgba(255,255,255,0.04)]" />
@@ -81,5 +78,6 @@ export default function ProfilePage({ user }) {
           </dl>
         </section>
     </div>
+    </>
   );
 }
