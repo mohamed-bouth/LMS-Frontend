@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import Icon from "../../../../components/Icon.jsx";
 import { getManagedCourses, archiveCourse, updateCourseStatus } from "../../services/courseService.js";
+import { useAuth } from "../../../auth/contexts/AuthContext.jsx";
 
-export default function AdminCoursesPage({token, onEdit, onCreate }) {
+export default function AdminCoursesPage({ onEdit, onCreate }) {
 
   const [search, setSearch] = useState("");
   const [courses, setCourses] = useState([])
@@ -10,6 +11,7 @@ export default function AdminCoursesPage({token, onEdit, onCreate }) {
   const [isLoading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [refresh, setRefresh] = useState(true)
+  const { token } = useAuth();
 
   useEffect(() => {
     const fetchCourses = async () => {

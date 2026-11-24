@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 import Icon from "../../../../components/Icon.jsx";
 import { updateCourse } from "../../services/courseService.js";
 import { findCourseForManage } from "../../services/courseService.js";
+import { useAuth } from "../../../auth/contexts/AuthContext.jsx";
 
-function EditCourseForm({ course, onBack, onSave , token}) {
-
-  console.log("course",course)
+function EditCourseForm({ course, onBack, onSave}) {
 
   const [values, setValues] = useState({
     title: course.title || "",
@@ -21,6 +20,7 @@ function EditCourseForm({ course, onBack, onSave , token}) {
   
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const { token } = useAuth();
 
   function updateField(event) {
     const { name, value } = event.target;
@@ -183,16 +183,16 @@ function EditCourseForm({ course, onBack, onSave , token}) {
   );
 }
 
-export default function EditCoursePage({token, onBack, onSave }) {
+export default function EditCoursePage({onBack, onSave }) {
   const { courseId } = useParams();
   const [course, setCourse] = useState();
   const [isLoading] = useState(true);
+  const { token } = useAuth();
 
   useEffect(() => {
     const fetchCourse = async () => {
       try{
         const course = await findCourseForManage(token, courseId)
-        console.log(course)
         setCourse(course)
       }catch{
         onBack()
@@ -220,5 +220,5 @@ export default function EditCoursePage({token, onBack, onSave }) {
     );
   }
 
-  return <EditCourseForm token={token} course={course} onBack={onBack} onSave={onSave} />;
+  return <EditCourseForm course={course} onBack={onBack} onSave={onSave} />;
 }
