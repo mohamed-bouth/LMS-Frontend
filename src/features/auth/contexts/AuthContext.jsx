@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { getCurrentProfile } from "../services/profileService"
 import { useNavigate } from "react-router";
 
@@ -14,30 +14,23 @@ export function AuthProvider({children}){
         return storedSession ? JSON.parse(storedSession): null
     })
 
-    useEffect(() => {
-        if(!session){
-            return routerNavigate("/login")
-        }
-
-        if(["admin", "trainer"].includes(session.user?.role?.toLowerCase())){
-            return routerNavigate("/manage/courses")
-        }else{
-            return routerNavigate("/enrollments/my")
-        }
-    },[session])
-
     async function handleAuthenticated(nextSession) {
         const user = await getCurrentProfile(nextSession.token);
-            if (!user) {
-            throw new Error("The authenticated profile is missing.");
+            if (!user || !user.role) {
+                throw new Error("The authenticated profile is missing.");
             }
             
             if(session){
                 sessionStorage.removeItem("lms-session")
             }
+
             sessionStorage.setItem("lms-session", JSON.stringify({ token: nextSession.token, user: user }))
             setSession({ ...nextSession, user });
-            
+
+            if(["admin", "trainer"].includes(user.role.toLowerCase())){
+                return routerNavigate("/manage/courses")
+            }
+            return routerNavigate("/enrollments/my")
     }
 
     function handleLogout(){
