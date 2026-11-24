@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Icon from "../../../../components/Icon.jsx";
 import { createCourse } from "../../services/courseService.js";
+import { useAuth } from "../../../auth/contexts/AuthContext.jsx";
 
 const initialValues = {
   title: "",
@@ -11,7 +12,8 @@ const initialValues = {
   estimatedDuration: "",
 };
 
-export default function CreateCoursePage({ onBack, onCreate, token }) {
+export default function CreateCoursePage({ onBack, onCreate }) {
+  const { token } = useAuth();
   const [values, setValues] = useState(initialValues);
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);

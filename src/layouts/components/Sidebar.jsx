@@ -1,7 +1,10 @@
 import Icon from "../../components/Icon.jsx";
 import Logo from "../../components/Logo.jsx";
+import { useAuth } from "../../features/auth/contexts/AuthContext.jsx";
 
-export default function Sidebar({ user, isOpen, onClose, onNavigate, onLogout }) {
+export default function Sidebar({ user, isOpen, onClose, onNavigate }) {
+
+  const { handleLogout } = useAuth()
 
   const role = user.role.toLowerCase()
   let items
@@ -81,7 +84,7 @@ export default function Sidebar({ user, isOpen, onClose, onNavigate, onLogout })
             <strong className="truncate text-[11px]">{name}</strong>
             <span className="mt-0.5 text-[10px] text-[#969baa]">{user.role}</span>
           </div>
-          <button className="text-[#8e94a3] transition hover:text-[#d34b65]" type="button" aria-label="Log out" onClick={onLogout}>
+          <button className="text-[#8e94a3] transition hover:text-[#d34b65]" type="button" aria-label="Log out" onClick={handleLogout}>
             <Icon name="logout" size={18} />
           </button>
         </div>

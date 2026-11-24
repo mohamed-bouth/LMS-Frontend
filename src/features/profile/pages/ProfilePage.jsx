@@ -1,5 +1,6 @@
 import Icon from "../../../components/Icon.jsx";
 import HeroSection from "../../../layouts/components/HeroSection.jsx";
+import { useAuth } from "../../auth/contexts/AuthContext.jsx";
 
 function StatusBadge({ status }) {
   return (
@@ -10,7 +11,8 @@ function StatusBadge({ status }) {
   );
 }
 
-export default function ProfilePage({ user }) {
+export default function ProfilePage() {
+  const { user } = useAuth()
   const name = user.name || user.email;
   const role = user.role || "Learner";
   const initials = name

@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import Icon from "../../../../components/Icon.jsx";
 import HeroSection from "../../../../layouts/components/HeroSection.jsx";
 import { getMyEnrollments } from "../../services/enrollmentService.js";
+import { useAuth } from "../../../auth/contexts/AuthContext.jsx";
 
 function CourseVisual() {
   return (
@@ -17,11 +18,12 @@ function CourseVisual() {
   );
 }
 
-export default function MyEnrollmentsPage({ token }) {
+export default function MyEnrollmentsPage() {
   const [isLoading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [enrollments, setEnrollments] = useState([]);
   const [refresh, setRefresh] = useState(true);
+  const {token} = useAuth();
 
   async function getData() {
     try {

@@ -1,6 +1,6 @@
 import Icon from "../components/Icon.jsx";
 import Sidebar from "./components/Sidebar.jsx";
-import { Outlet } from "react-router-dom";
+import { Outlet } from "react-router";
 
 export default function AuthenticatedLayout({
   user,
@@ -8,7 +8,6 @@ export default function AuthenticatedLayout({
   onCloseSidebar,
   onOpenSidebar,
   onNavigate,
-  onLogout,
 }) {
   return (
     <div className="min-h-screen bg-[#fafafe] text-[#182038]">
@@ -17,7 +16,6 @@ export default function AuthenticatedLayout({
         isOpen={sidebarOpen}
         onClose={onCloseSidebar}
         onNavigate={onNavigate}
-        onLogout={onLogout}
       />
       <div className="min-h-screen lg:ml-[250px]">
         <header className="flex h-[76px] items-center border-b border-[#e7e8ef] bg-white px-5 sm:px-8 lg:px-10">
