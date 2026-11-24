@@ -3,7 +3,6 @@ import {
   Navigate,
   Route,
   Routes,
-  useLocation,
   useNavigate,
 } from "react-router-dom";
 
@@ -17,15 +16,14 @@ import ProfilePage from "./features/profile/pages/ProfilePage.jsx";
 import AdminCoursesPage from "./features/courses/pages/admin/AdminCoursesPage.jsx";
 import CreateCoursePage from "./features/courses/pages/admin/CreateCoursePage.jsx";
 import EditCoursePage from "./features/courses/pages/admin/EditCoursePage.jsx";
-import MyCoursesPage from "./features/courses/pages/learner/MyCoursesPage.jsx";
+import MyEnrollmentsPage from "./features/enrollments/pages/learner/MyEnrollmentsPage.jsx";
+import PublicCoursesPage from "./features/courses/pages/public/PublicCoursesPage.jsx";
 
 import { getCurrentProfile } from "./features/auth/services/profileService.js";
-import useCourses from "./features/courses/hooks/useCourses.js";
 import CourseModules from "./features/modules/pages/learner/CourseModules.jsx";
 
 function App() {
   const routerNavigate = useNavigate();
-  const location = useLocation();
 
   const [session, setSession] = useState(() => {
     try {
@@ -49,13 +47,6 @@ function App() {
     }
   }, [session]);
 
-  const courseData = useCourses(
-    session?.token,
-    location.pathname,
-    setSession,
-    routerNavigate,
-  );
-
   async function handleAuthenticated(nextSession) {
     const user = await getCurrentProfile(nextSession.token);
     if (!user) {
@@ -74,19 +65,14 @@ function App() {
       login: "/login",
       register: "/register",
       profile: "/profile",
-      myCourses: "/courses/my",
+      myEnrollments: "/enrollments/my",
+      courses: "/courses",
       courseModules: "/courses/modules",
       adminCourses: "/admin/courses",
       createCourse: "/admin/courses/new",
     };
     const path = paths[nextView];
     if (!path) return;
-
-    if (location.pathname === path) {
-      if (nextView === "myCourses") courseData.retryCourses();
-      if (nextView === "adminCourses") courseData.retryManagedCourses();
-      return;
-    }
 
     routerNavigate(path);
   }
@@ -132,18 +118,22 @@ function App() {
       </Route>
       <Route element={layout}>
         <Route
+          path="/courses"
+          element={<PublicCoursesPage></PublicCoursesPage>}
+        />
+        <Route
           path="/profile"
           element={<ProfilePage user={session?.user}/>}
         />
         <Route
-          path="/courses/my"
+          path="/enrollments/my"
           element={
-            <MyCoursesPage
-              enrollments={courseData.courses}
-              isLoading={courseData.coursesLoading}
-              error={courseData.coursesError}
-              onRetry={courseData.retryCourses}
-            />
+            <ProtectedView
+              role={session?.user?.role}
+              allowedRoles={["learner"]}
+            >
+              <MyEnrollmentsPage token={session?.token}/>
+            </ProtectedView>
           }
         />
         <Route
@@ -158,15 +148,10 @@ function App() {
               allowedRoles={["admin", "trainer"]}
             >
               <AdminCoursesPage
-                courses={courseData.managedCourses}
-                isLoading={courseData.managedCoursesLoading}
-                error={courseData.managedCoursesError}
-                onRetry={courseData.retryManagedCourses}
+                token={session?.token}
                 onEdit={(course) =>
                   routerNavigate(`/admin/courses/${course._id}/edit`)
                 }
-                onStatusChange={courseData.changeCourseStatus}
-                onArchive={courseData.archiveCourse}
                 onCreate={() => navigate("createCourse")}
               />
             </ProtectedView>
@@ -181,7 +166,8 @@ function App() {
             >
               <CreateCoursePage
                 onBack={() => navigate("adminCourses")}
-                onCreate={courseData.handleCreateCourse}
+                onCreate={() => navigate("adminCourses")}
+                token={session?.token}
               />
             </ProtectedView>
           }
@@ -194,10 +180,9 @@ function App() {
               allowedRoles={["admin", "trainer"]}
             >
               <EditCoursePage
-                courses={courseData.managedCourses}
-                isLoading={courseData.managedCoursesLoading}
+                token={session?.token}
                 onBack={() => navigate("adminCourses")}
-                onSave={courseData.saveCourse}
+                onSave={() => navigate("adminCourses")}
               />
             </ProtectedView>
           }

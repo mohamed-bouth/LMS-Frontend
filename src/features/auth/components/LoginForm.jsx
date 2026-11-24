@@ -2,14 +2,6 @@ import { useState } from "react";
 import Icon from "../../../components/Icon.jsx";
 import { login } from "../services/authService.js";
 
-function getErrorMessage(status) {
-  if (status === 401) return "Email or password is incorrect.";
-  if (status === 403) return "Accès refusé.";
-  if (status === 404) return "The authentication service is unavailable.";
-  if (status >= 500) return "A server error occurred. Please try again.";
-  return "Unable to sign in. Please check your information.";
-}
-
 export default function LoginForm({ onAuthenticated, onNavigate }) {
   const [values, setValues] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -31,18 +23,13 @@ export default function LoginForm({ onAuthenticated, onNavigate }) {
     setIsLoading(true);
     setError("");
     try {
-      const response = await login(values);
-      if (!response.ok) {
-        setError(getErrorMessage(response.status));
-        return;
-      }
+      const data = await login(values);
 
-      const session = await response.json();
-      if (!session.token) {
+      if (!data.token) {
         setError("The login response is invalid.");
         return;
       }
-      await onAuthenticated(session);
+      await onAuthenticated(data);
     } catch{
       setError("Unable to reach the authentication service.");
     } finally {
