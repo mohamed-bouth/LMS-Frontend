@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Icon from "../../../../components/Icon.jsx";
+import { updateCourse } from "../../services/courseService.js";
+import { findCourseForManage } from "../../services/courseService.js";
 
-function EditCourseForm({ course, onBack, onSave }) {
+function EditCourseForm({ course, onBack, onSave , token}) {
+
+  console.log("course",course)
 
   const [values, setValues] = useState({
     title: course.title || "",
@@ -45,7 +49,7 @@ function EditCourseForm({ course, onBack, onSave }) {
     setIsSaving(true);
     setError("");
     try {
-      await onSave(course._id, {
+      await updateCourse(token, course._id, {
         title,
         description,
         objectives: values.objectives
@@ -56,16 +60,9 @@ function EditCourseForm({ course, onBack, onSave }) {
         category,
         estimatedDuration,
       });
-      onBack();
-    } catch (requestError) {
-      if (requestError.status === 400)
-        setError("Please check the course information.");
-      else if (requestError.status === 401)
-        setError("Your session has expired. Please sign in again.");
-      else if (requestError.status === 403) setError("Accès refusé.");
-      else if (requestError.status === 404)
-        setError("This course could not be found.");
-      else setError("Unable to update the course.");
+      onSave()
+    } catch (error) {
+      setError(error.message)
     } finally {
       setIsSaving(false);
     }
@@ -186,9 +183,23 @@ function EditCourseForm({ course, onBack, onSave }) {
   );
 }
 
-export default function EditCoursePage({ courses, onBack, onSave, isLoading }) {
+export default function EditCoursePage({token, onBack, onSave }) {
   const { courseId } = useParams();
-  const course = courses.find((item) => String(item._id) === courseId);
+  const [course, setCourse] = useState();
+  const [isLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCourse = async () => {
+      try{
+        const course = await findCourseForManage(token, courseId)
+        console.log(course)
+        setCourse(course)
+      }catch{
+        onBack()
+      }
+    }
+    fetchCourse()
+  },[])
 
   if (!course) {
     return (
@@ -209,5 +220,5 @@ export default function EditCoursePage({ courses, onBack, onSave, isLoading }) {
     );
   }
 
-  return <EditCourseForm course={course} onBack={onBack} onSave={onSave} />;
+  return <EditCourseForm token={token} course={course} onBack={onBack} onSave={onSave} />;
 }

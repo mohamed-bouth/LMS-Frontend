@@ -1,22 +1,18 @@
 import { authenticatedRequest } from "../../../services/api.js";
 
-async function requestCourse(path, token, options = {}) {
-  const response = await authenticatedRequest(path, token, options);
-  if (!response.ok) {
-    const error = new Error(`Course request failed with status ${response.status}`);
-    error.status = response.status;
-    throw error;
-  }
-  return response.json();
-}
 
 export async function getManagedCourses(token) {
-  const payload = await requestCourse("/api/trainer/Courses", token);
+  const payload = await authenticatedRequest("/api/trainer/Courses", token);
   return payload.data?.courses || [];
 }
 
+export async function findCourseForManage(token, courseId){
+  const payload = await authenticatedRequest(`/api/courses/manage/${courseId}`, token)
+  return payload.data?.course || null
+}
+
 export async function createCourse(token, course) {
-  return requestCourse("/api/courses", token, {
+  return authenticatedRequest("/api/courses", token, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(course),
@@ -24,13 +20,19 @@ export async function createCourse(token, course) {
 }
 
 export async function updateCourseStatus(token, courseId, action) {
-  return requestCourse(`/api/courses/${courseId}/${action}`, token, { method: "PATCH" });
+  return authenticatedRequest(`/api/courses/${courseId}/${action}`, token, { method: "PATCH" });
 }
 
 export async function updateCourse(token, courseId, changes) {
-  return requestCourse(`/api/courses/${courseId}`, token, {
+  return authenticatedRequest(`/api/courses/${courseId}`, token, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(changes),
   });
+}
+
+export async function archiveCourse(token, courseId) {
+  return authenticatedRequest(`/api/courses/${courseId}/archived`, token, {
+    method: "PATCH",
+  })
 }
