@@ -1,17 +1,19 @@
 import { apiRequest } from "../../../services/api.js";
 
 export async function login(credentials) {
-  return apiRequest('/api/auth/login', {
+  const data = await apiRequest('/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(credentials),
   });
+  return data
 }
 
 export async function register(credentials) {
-  return apiRequest('/api/auth/register', {
+  const data = await apiRequest('/api/auth/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(credentials),
   });
+  return data
 }

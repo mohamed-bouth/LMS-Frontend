@@ -1,9 +1,53 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Icon from "../../../../components/Icon.jsx";
+import { getManagedCourses, archiveCourse, updateCourseStatus } from "../../services/courseService.js";
 
-export default function AdminCoursesPage({ courses, isLoading, error, onRetry, onEdit, onStatusChange, onArchive, onCreate }) {
+export default function AdminCoursesPage({token, onEdit, onCreate }) {
+
   const [search, setSearch] = useState("");
+  const [courses, setCourses] = useState([])
   const filteredCourses = courses.filter((course) => `${course.title} ${course.description} ${course.category}`.toLowerCase().includes(search.toLowerCase()));
+  const [isLoading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+  const [refresh, setRefresh] = useState(true)
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try{
+        const fetchedDourses = await getManagedCourses(token)
+        setCourses(fetchedDourses)
+      }catch(error){
+        console.error(error)
+        setError(error.message)
+      }finally{
+        setLoading(false)
+      }
+    }
+    fetchCourses()
+  },[refresh])
+
+  async function handleArchiveCourse(courseId){
+    setError("")
+    setLoading(true)
+    try{
+      await archiveCourse(token, courseId)
+      setRefresh((refresh) => !refresh)
+    }catch(error){
+      setError(error.message)
+    }
+  }
+
+  async function handleChangeStatus(course){
+    setError("")
+    setLoading(true)
+    const status = course.status === "published" ? "unpublish": "publish"
+    try{
+      await updateCourseStatus(token, course.id, status)
+      setRefresh((refresh) => !refresh)
+    }catch(error){
+      setError(error.message)
+    }
+  }
 
   return (
     <div className="mx-auto w-full max-w-[1180px] px-5 py-7 text-[#182038] sm:px-8 lg:px-10 lg:py-9">
@@ -27,7 +71,7 @@ export default function AdminCoursesPage({ courses, isLoading, error, onRetry, o
       ) : error ? (
         <div className="rounded-xl border border-[#f1c7ce] bg-[#fff7f8] px-6 py-12 text-center" role="alert">
           <p className="text-sm font-semibold text-[#a33d50]">{error}</p>
-          <button className="mt-4 rounded-[9px] bg-[#4f46d9] px-4 py-2 text-xs font-semibold text-white" type="button" onClick={onRetry}>Try again</button>
+          <button className="mt-4 rounded-[9px] bg-[#4f46d9] px-4 py-2 text-xs font-semibold text-white" type="button" onClick={() => setRefresh((current) => !current)}>Try again</button>
         </div>
       ) : filteredCourses.length === 0 ? (
         <div className="rounded-xl border border-[#e7e8ef] bg-white px-6 py-16 text-center">
@@ -51,8 +95,8 @@ export default function AdminCoursesPage({ courses, isLoading, error, onRetry, o
                     <span className="text-[10px] text-[#969baa]">{course.category || "Uncategorized"}</span>
                     <div className="flex items-center gap-3">
                       <button className="text-xs font-semibold text-[#4f46d9]" type="button" onClick={() => onEdit(course)}>Edit</button>
-                      <button className="text-xs font-semibold text-[#4f46d9]" type="button" onClick={() => onStatusChange(course)}>{isPublished ? "Unpublish" : "Publish"}</button>
-                      <button className="text-xs font-semibold text-[#a33d50]" type="button" onClick={() => onArchive(course)}>Archive</button>
+                      <button className="text-xs font-semibold text-[#4f46d9]" type="button" onClick={() => handleChangeStatus(course)}>{isPublished ? "Draft" : "Publish"}</button>
+                      <button className="text-xs font-semibold text-[#a33d50]" type="button" onClick={() => handleArchiveCourse(course.id)}>Archive</button>
                     </div>
                   </div>
                 </div>

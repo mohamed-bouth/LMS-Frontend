@@ -16,11 +16,16 @@ export default function Sidebar({ user, isOpen, onClose, onNavigate, onLogout })
       { label: "Courses", icon: "courses", view: "adminCourses" },
       { label: "My Profile", icon: "profile", view: "profile" }
     ]
+  }else if(role === "learner"){
+    items = [
+      { label: "My Enrolments", icon: "courses", view: "myEnrollments" },
+      { label: "Courses", icon: "courses", view: "courses" },
+      { label: "Modules", icon: "file", view: "courseModules"},
+      { label: "My Profile", icon: "profile", view: "profile" },
+    ]
   }else{
     items = [
-      { label: "My Profile", icon: "profile", view: "profile" },
-      { label: "My Courses", icon: "courses", view: "myCourses" },
-      { label: "Modules", icon: "file", view: "courseModules"}
+      { label: "Courses", icon: "courses", view: "Courses" },
     ]
   }
 

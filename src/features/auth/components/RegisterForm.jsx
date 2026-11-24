@@ -2,14 +2,6 @@ import { useState } from "react";
 import Icon from "../../../components/Icon.jsx";
 import { register } from "../services/authService.js";
 
-function getErrorMessage(status) {
-  if (status === 400) return "Please check the information entered.";
-  if (status === 409) return "An account with this email already exists.";
-  if (status === 403) return "Accès refusé.";
-  if (status >= 500) return "A server error occurred. Please try again.";
-  return "Unable to create your account.";
-}
-
 export default function RegisterForm({ onNavigate }) {
   const [values, setValues] = useState({ name: "", email: "", password: "", confirmPassword: "" });
   const [error, setError] = useState("");
@@ -41,15 +33,12 @@ export default function RegisterForm({ onNavigate }) {
     setIsLoading(true);
     setError("");
     try {
-      const response = await register({
+      await register({
         name: values.name.trim(),
         email: values.email.trim(),
         password: values.password,
       });
-      if (!response.ok) {
-        setError(getErrorMessage(response.status));
-        return;
-      }
+  
       setSuccess("Account created successfully. You can now sign in.");
     } catch {
       setError("Unable to reach the registration service.");
