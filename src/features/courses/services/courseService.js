@@ -1,8 +1,14 @@
-import { authenticatedRequest } from "../../../services/api.js";
+import { apiRequest, authenticatedRequest } from "../../../services/api.js";
 
+
+export async function getPublicCourses(){
+  const payload = await apiRequest("/api/courses")
+
+  return payload.data?.courses || [];
+}
 
 export async function getManagedCourses(token) {
-  const payload = await authenticatedRequest("/api/trainer/Courses", token);
+  const payload = await authenticatedRequest("/api/trainer/courses", token);
   return payload.data?.courses || [];
 }
 

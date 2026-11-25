@@ -4,6 +4,7 @@ import Icon from "../../../../components/Icon.jsx";
 import { updateCourse } from "../../services/courseService.js";
 import { findCourseForManage } from "../../services/courseService.js";
 import { useAuth } from "../../../auth/contexts/AuthContext.jsx";
+import Loader from "../../../../components/Loader.jsx";
 
 function EditCourseForm({ course }) {
 
@@ -170,11 +171,11 @@ function EditCourseForm({ course }) {
             Cancel
           </Link>
           <button
-            className="rounded-[9px] bg-[#4f46d9] px-4 py-2.5 text-xs font-semibold text-white disabled:opacity-60"
+            className="h-10 w-30 rounded-[9px] bg-[#4f46d9] px-4 py-2.5 text-xs font-semibold text-white disabled:opacity-60"
             type="submit"
             disabled={isSaving}
           >
-            {isSaving ? "Saving..." : "Save changes"}
+            {isSaving ? <div className="flex items-center justify-center"><Loader size={5}/></div> : "Save changes"}
           </button>
         </div>
       </form>
@@ -185,7 +186,7 @@ function EditCourseForm({ course }) {
 export default function EditCoursePage() {
   const { courseId } = useParams();
   const [course, setCourse] = useState();
-  const [isLoading] = useState(true);
+  const [isLoading, setLoading] = useState(true);
   const { token } = useAuth();
   const navigate = useNavigate()
 
@@ -196,24 +197,28 @@ export default function EditCoursePage() {
         setCourse(course)
       }catch{
         navigate("/manage/courses")
+      }finally{
+        setLoading(false)
       }
     }
     fetchCourse()
   },[])
 
-  if (!course) {
+  if (isLoading) {
     return (
       <main className="grid min-h-[calc(100vh-76px)] place-items-center px-6 text-center">
         <div>
-          <p className="text-sm text-[#697188]">
-            {isLoading ? "Loading course..." : "Course not found."}
-          </p>
-          <Link
-            to={"/manage/courses"}
-            className="mt-4 text-xs font-semibold text-[#4f46d9]"
-          >
-            Back to courses
-          </Link>
+          <div className="flex flex-col items-center justify-center h-screen">
+            <p className="text-sm text-[#697188]">
+              {isLoading ? <Loader darkMode={true}/> : "Course not found."}
+            </p>
+            <Link
+              to={"/manage/courses"}
+              className="mt-4 text-xs font-semibold text-[#4f46d9]"
+            >
+              Back to courses
+            </Link>
+          </div>
         </div>
       </main>
     );

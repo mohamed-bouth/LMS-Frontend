@@ -73,14 +73,7 @@ export default function Sidebar({ isOpen, onClose }) {
             );
           })}
         </nav>
-        <div className="mt-auto flex gap-2.5 rounded-[10px] border border-[#ececf3] bg-[#f7f7fc] p-[13px]">
-          <span className="text-[#4f46d9]"><Icon name="shield" size={19} /></span>
-          <div>
-            <strong className="text-[11px]">Protected workspace</strong>
-            <p className="mt-0.5 text-[10px] text-[#9297a7]">Your session is secure.</p>
-          </div>
-        </div>
-        <div className="mt-3.5 grid grid-cols-[36px_1fr_30px] items-center gap-[9px] border-t border-[#e7e8ef] px-[5px] pb-0 pt-3.5">
+        <div className="mt-auto grid grid-cols-[36px_1fr_30px] items-center gap-[9px] border-t border-[#e7e8ef] px-[5px] pb-0 pt-3.5">
           <div className="grid h-9 w-9 place-items-center rounded-full bg-[#dcecff] text-[11px] font-bold text-[#2b63a7]">{initials}</div>
           <div className="flex min-w-0 flex-col">
             <strong className="truncate text-[11px]">{name}</strong>

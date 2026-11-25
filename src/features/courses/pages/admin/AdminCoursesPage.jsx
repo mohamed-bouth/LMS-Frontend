@@ -3,6 +3,7 @@ import Icon from "../../../../components/Icon.jsx";
 import { getManagedCourses, archiveCourse, updateCourseStatus } from "../../services/courseService.js";
 import { useAuth } from "../../../auth/contexts/AuthContext.jsx";
 import { Link, useNavigate } from "react-router";
+import Loader from "../../../../components/Loader.jsx";
 
 export default function AdminCoursesPage() {
 
@@ -53,6 +54,10 @@ export default function AdminCoursesPage() {
     }
   }
 
+  if(isLoading){
+    return <div className="flex items-center justify-center h-screen"><Loader/></div>
+  }
+
   return (
     <div className="mx-auto w-full max-w-[1180px] px-5 py-7 text-[#182038] sm:px-8 lg:px-10 lg:py-9">
       <div className="mb-6">
@@ -70,9 +75,7 @@ export default function AdminCoursesPage() {
         <Icon name="search" size={17} />
         <input className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none" type="search" placeholder="Search courses..." value={search} onChange={(event) => setSearch(event.target.value)} />
       </label>
-      {isLoading ? (
-        <div className="rounded-xl border border-[#e7e8ef] bg-white px-6 py-16 text-center text-sm text-[#697188]">Loading courses...</div>
-      ) : error ? (
+      {error ? (
         <div className="rounded-xl border border-[#f1c7ce] bg-[#fff7f8] px-6 py-12 text-center" role="alert">
           <p className="text-sm font-semibold text-[#a33d50]">{error}</p>
           <button className="mt-4 rounded-[9px] bg-[#4f46d9] px-4 py-2 text-xs font-semibold text-white" type="button" onClick={() => setRefresh((current) => !current)}>Try again</button>
