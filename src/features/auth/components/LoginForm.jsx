@@ -3,6 +3,7 @@ import Icon from "../../../components/Icon.jsx";
 import { login } from "../services/authService.js";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { Link } from "react-router";
+import Loader from "../../../components/Loader.jsx";
 
 export default function LoginForm() {
   const [values, setValues] = useState({ email: "", password: "" });
@@ -91,7 +92,7 @@ export default function LoginForm() {
         </label>
         {error && <p className="mb-4 text-sm text-red-600" role="alert">{error}</p>}
         <button className="flex h-12 w-full items-center justify-center gap-2 rounded-[9px] border border-transparent bg-[#4f46d9] text-sm font-normal text-white shadow-[0_5px_12px_rgba(79,70,217,0.18)] transition hover:-translate-y-px hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-70" type="submit" disabled={isLoading}>
-          {isLoading ? "Signing in..." : "Sign in"}
+          {isLoading ? <div className="flex items-center justify-center h-screen"><Loader darkMode={true}/></div> : "Sign in"}
           {!isLoading && <Icon name="arrow" size={17} />}
         </button>
         <div className="my-[25px] flex items-center gap-3 text-[11px] text-[#9ba0ae] before:h-px before:flex-1 before:bg-[#eaecf1] after:h-px after:flex-1 after:bg-[#eaecf1]">

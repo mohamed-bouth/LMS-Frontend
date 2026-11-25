@@ -2,6 +2,7 @@ import { useState } from "react";
 import Icon from "../../../components/Icon.jsx";
 import { register } from "../services/authService.js";
 import { Link } from "react-router";
+import Loader from "../../../components/Loader.jsx";
 
 export default function RegisterForm() {
   const [values, setValues] = useState({ name: "", email: "", password: "", confirmPassword: "" });
@@ -133,7 +134,7 @@ export default function RegisterForm() {
       {error && <p className="mb-4 text-sm text-red-600" role="alert">{error}</p>}
       {success && <p className="mb-4 text-sm text-green-700" role="status">{success}</p>}
       <button className="flex h-12 w-full items-center justify-center gap-2 rounded-[9px] border border-transparent bg-[#4f46d9] text-sm font-normal text-white shadow-[0_5px_12px_rgba(79,70,217,0.18)] transition hover:-translate-y-px hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-70" type="submit" disabled={isLoading}>
-        {isLoading ? "Creating account..." : "Create account"}
+        {isLoading ? <div className="flex items-center justify-center h-screen"><Loader darkMode={true}/></div>: "Create account"}
         {!isLoading && <Icon name="arrow" size={17} />}
       </button>
       <p className="mt-[22px] text-center text-[12px] text-[#777e91]">

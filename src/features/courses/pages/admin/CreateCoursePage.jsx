@@ -3,6 +3,7 @@ import Icon from "../../../../components/Icon.jsx";
 import { createCourse } from "../../services/courseService.js";
 import { useAuth } from "../../../auth/contexts/AuthContext.jsx";
 import { useNavigate, Link } from "react-router";
+import Loader from "../../../../components/Loader.jsx";
 
 const initialValues = {
   title: "",
@@ -181,16 +182,16 @@ export default function CreateCoursePage() {
         )}
         <div className="mt-7 flex justify-end gap-3 border-t border-[#eeeef3] pt-5">
           <Link to={'/manage/courses'}
-            className="rounded-[9px] border border-[#dfe2ea] px-4 py-2.5 text-xs font-semibold text-[#596077]"
+            className="h-10 rounded-[9px] border border-[#dfe2ea] px-4 py-2.5 text-xs font-semibold text-[#596077]"
           >
             Cancel
           </Link>
           <button
-            className="rounded-[9px] bg-[#4f46d9] px-4 py-2.5 text-xs font-semibold text-white disabled:opacity-60"
+            className="h-10 w-30 rounded-[9px] bg-[#4f46d9] px-4 py-2.5 text-xs font-semibold text-white disabled:opacity-60"
             type="submit"
             disabled={isSaving}
           >
-            {isSaving ? "Creating..." : "Create course"}
+            {isSaving ? <div className="flex items-center justify-center"><Loader size={5}/></div> : "Create course"}
           </button>
         </div>
       </form>
