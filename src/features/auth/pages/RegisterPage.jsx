@@ -2,14 +2,14 @@ import Icon from "../../../components/Icon.jsx";
 import Logo from "../../../components/Logo.jsx";
 import RegisterForm from "../components/RegisterForm.jsx";
 
-export default function RegisterPage({ onNavigate }) {
+export default function RegisterPage() {
   return (
       <main className="grid min-h-screen grid-cols-1 bg-white min-[801px]:grid-cols-[minmax(420px,1.07fr)_minmax(500px,0.93fr)]">
         <section className="relative flex min-h-screen flex-col items-center justify-start px-7 py-7 min-[621px]:py-[35px] min-[801px]:min-h-[700px] min-[801px]:justify-center min-[801px]:px-10 min-[801px]:pb-[35px]">
           <div className="mb-[38px] block w-full max-w-[470px] min-[801px]:hidden">
             <Logo />
           </div>
-          <RegisterForm onNavigate={onNavigate} />
+          <RegisterForm />
           <p className="mt-auto pt-[55px] text-center text-[11px] text-[#a0a5b2] min-[801px]:absolute min-[801px]:bottom-[25px] min-[801px]:mt-0 min-[801px]:pt-0">
             © 2025 EduLearn. Secure learning, thoughtfully designed.
           </p>

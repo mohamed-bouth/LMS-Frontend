@@ -1,8 +1,9 @@
 import { useState } from "react";
 import Icon from "../../../components/Icon.jsx";
 import { register } from "../services/authService.js";
+import { Link } from "react-router";
 
-export default function RegisterForm({ onNavigate }) {
+export default function RegisterForm() {
   const [values, setValues] = useState({ name: "", email: "", password: "", confirmPassword: "" });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -137,9 +138,9 @@ export default function RegisterForm({ onNavigate }) {
       </button>
       <p className="mt-[22px] text-center text-[12px] text-[#777e91]">
         Already have an account?{" "}
-        <button className="border-0 bg-transparent p-0 font-normal text-[#4f46d9] hover:underline" type="button" onClick={() => onNavigate("login")}>
+        <Link className="border-0 bg-transparent p-0 font-normal text-[#4f46d9] hover:underline" to={"/login"}>
           Sign in
-        </button>
+        </Link>
       </p>
     </form>
   );

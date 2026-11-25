@@ -1,12 +1,7 @@
-import {useState } from "react";
-import {
-  Navigate,
-  Route,
-  Routes,
-  useNavigate,
-} from "react-router";
+import { useState } from "react";
+import { Navigate, Route, Routes } from "react-router";
 
-import ProtectedView from "./components/ProtectedView.jsx";
+import RoleGuard from "./components/guard/RoleGuard.jsx";
 import AuthenticatedLayout from "./layouts/AuthenticatedLayout.jsx";
 import GuestLayout from "./layouts/GuestLayout.jsx";
 
@@ -21,135 +16,67 @@ import PublicCoursesPage from "./features/courses/pages/public/PublicCoursesPage
 
 import CourseModules from "./features/modules/pages/learner/CourseModules.jsx";
 import { useAuth } from "./features/auth/contexts/AuthContext.jsx";
+import AuthGuard from "./components/guard/AuthGuard.jsx";
 
 function App() {
-  const routerNavigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const {session, handleAuthenticated, isManager} = useAuth()
+  const { session, isManager } = useAuth();
 
-  function navigate(nextView) {
-    const paths = {
-      login: "/login",
-      register: "/register",
-      profile: "/profile",
-      myEnrollments: "/enrollments/my",
-      courses: "/courses",
-      courseModules: "/courses/modules",
-      adminCourses: "/manage/courses",
-      createCourse: "/manage/courses/new",
-    };
-    const path = paths[nextView];
-    if (!path) return;
-
-    routerNavigate(path);
-  }
-
-  let layout
-
-  if(session){
-    layout = <AuthenticatedLayout
-              user={session.user}
-              sidebarOpen={sidebarOpen}
-              onCloseSidebar={() => setSidebarOpen(false)}
-              onOpenSidebar={() => setSidebarOpen(true)}
-              onNavigate={navigate}/>
-  }else{
-    layout = <Navigate to="/login" replace />
-  }
 
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route element={<GuestLayout/>}>
-        <Route
-          path="/login"
-          element={
-            <LoginPage
-              onAuthenticated={handleAuthenticated}
-              onNavigate={navigate}
-            />
-          }
-        />
-        <Route
-          path="/register"
-          element={<RegisterPage onNavigate={navigate} />}
-        />
+      <Route element={<GuestLayout />}>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
       </Route>
-      <Route element={layout}>
+
+      <Route
+        element={
+          <AuthenticatedLayout
+            sidebarOpen={sidebarOpen}
+            onCloseSidebar={() => setSidebarOpen(false)}
+            onOpenSidebar={() => setSidebarOpen(true)}
+          />
+        }
+      >
+        {/* public routes */}
         <Route
           path="/courses"
           element={<PublicCoursesPage></PublicCoursesPage>}
         />
-        <Route
-          path="/profile"
-          element={<ProfilePage/>}
-        />
-        <Route
-          path="/enrollments/my"
-          element={
-            <ProtectedView
-              role={session?.user?.role}
-              allowedRoles={["learner"]}
-            >
-              <MyEnrollmentsPage/>
-            </ProtectedView>
-          }
-        />
-        <Route
-          path="/courses/modules"
-          element={<CourseModules></CourseModules>}
-        />
-        <Route
-          path="/manage/courses"
-          element={
-            <ProtectedView
-              role={session?.user?.role}
-              allowedRoles={["admin", "trainer"]}
-            >
-              <AdminCoursesPage
-                onEdit={(course) =>
-                  routerNavigate(`/manage/courses/${course._id}/edit`)
-                }
-                onCreate={() => navigate("createCourse")}
-              />
-            </ProtectedView>
-          }
-        />
-        <Route
-          path="/manage/courses/new"
-          element={
-            <ProtectedView
-              role={session?.user?.role}
-              allowedRoles={["admin", "trainer"]}
-            >
-              <CreateCoursePage
-                onBack={() => navigate("adminCourses")}
-                onCreate={() => navigate("adminCourses")}
-              />
-            </ProtectedView>
-          }
-        />
-        <Route
-          path="/manage/courses/:courseId/edit"
-          element={
-            <ProtectedView
-              role={session?.user?.role}
-              allowedRoles={["admin", "trainer"]}
-            >
-              <EditCoursePage
-                onBack={() => navigate("adminCourses")}
-                onSave={() => navigate("adminCourses")}
-              />
-            </ProtectedView>
-          }
-        />
+
+        {/* auth layout */}
+        <Route element={<AuthGuard />}>
+          <Route path="/profile" element={<ProfilePage />} />
+
+          {/* learner routes */}
+          <Route element={<RoleGuard allowedRoles={["learner"]} />}>
+            <Route path="/enrollments/my" element={<MyEnrollmentsPage />} />
+            <Route
+              path="/courses/modules"
+              element={<CourseModules></CourseModules>}
+            />
+          </Route>
+
+          {/* admin and trainer routes */}
+          <Route
+            path="/manage"
+            element={<RoleGuard allowedRoles={["admin", "trainer"]} />}
+          >
+            <Route path="courses" element={ <AdminCoursesPage/> } />
+            <Route path="courses/new" element={ <CreateCoursePage/> } />
+
+            <Route path="courses/:courseId/edit" element={ <EditCoursePage/> }/>
+          </Route>
+        </Route>
       </Route>
       <Route
         path="*"
         element={
           <Navigate
             to={
-              session ? (isManager ? "/admin/courses" : "/profile") : "/login"
+              session ? (isManager ? "/manage/courses" : "/profile") : "/login"
             }
             replace
           />
