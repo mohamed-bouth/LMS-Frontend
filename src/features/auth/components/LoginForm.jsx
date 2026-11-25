@@ -1,11 +1,14 @@
 import { useState } from "react";
 import Icon from "../../../components/Icon.jsx";
 import { login } from "../services/authService.js";
+import { useAuth } from "../contexts/AuthContext.jsx";
+import { Link } from "react-router";
 
-export default function LoginForm({ onAuthenticated, onNavigate }) {
+export default function LoginForm() {
   const [values, setValues] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { handleAuthenticated } = useAuth()
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -29,7 +32,7 @@ export default function LoginForm({ onAuthenticated, onNavigate }) {
         setError("The login response is invalid.");
         return;
       }
-      await onAuthenticated(data);
+      await handleAuthenticated(data);
     } catch{
       setError("Unable to reach the authentication service.");
     } finally {
@@ -96,9 +99,9 @@ export default function LoginForm({ onAuthenticated, onNavigate }) {
         </div>
         <p className="mt-[22px] text-center text-[12px] text-[#777e91]">
           New to EduLearn?{" "}
-          <button className="border-0 bg-transparent p-0 font-normal text-[#4f46d9] hover:underline" type="button" onClick={() => onNavigate("register")}>
-            Create an account
-          </button>
+          <Link className="border-0 bg-transparent p-0 font-normal text-[#4f46d9] hover:underline" to={"/register"}>
+          Create an account
+          </Link>
         </p>
       </form>
   );

@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import Icon from "../../../../components/Icon.jsx";
 import { getManagedCourses, archiveCourse, updateCourseStatus } from "../../services/courseService.js";
 import { useAuth } from "../../../auth/contexts/AuthContext.jsx";
+import { Link, useNavigate } from "react-router";
 
-export default function AdminCoursesPage({ onEdit, onCreate }) {
+export default function AdminCoursesPage() {
 
   const [search, setSearch] = useState("");
   const [courses, setCourses] = useState([])
@@ -12,6 +13,7 @@ export default function AdminCoursesPage({ onEdit, onCreate }) {
   const [error, setError] = useState("")
   const [refresh, setRefresh] = useState(true)
   const { token } = useAuth();
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -58,10 +60,10 @@ export default function AdminCoursesPage({ onEdit, onCreate }) {
         <h1 className="mt-1.5 font-['Poppins'] text-[27px] tracking-[-1px] text-[#202647]">Courses Management</h1>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <p className="mt-1.5 text-[13px] text-[#858b9b]">Review courses and manage their publication status.</p>
-          <button className="inline-flex items-center justify-center gap-2 rounded-[9px] bg-[#4f46d9] px-4 py-2.5 text-xs font-semibold text-white" type="button" onClick={onCreate}>
+          <Link to={"new"} className="inline-flex items-center justify-center gap-2 rounded-[9px] bg-[#4f46d9] px-4 py-2.5 text-xs font-semibold text-white">
             <Icon name="plus" size={17} />
             Create course
-          </button>
+          </Link>
         </div>
       </div>
       <label className="mb-5 flex h-11 max-w-[380px] items-center gap-2 rounded-[10px] border border-[#dfe2ea] bg-white px-3.5 text-[#9298a9]">
@@ -96,7 +98,7 @@ export default function AdminCoursesPage({ onEdit, onCreate }) {
                   <div className="mt-4 flex items-center justify-between border-t border-[#eeeef3] pt-3">
                     <span className="text-[10px] text-[#969baa]">{course.category || "Uncategorized"}</span>
                     <div className="flex items-center gap-3">
-                      <button className="text-xs font-semibold text-[#4f46d9]" type="button" onClick={() => onEdit(course)}>Edit</button>
+                      <button className="text-xs font-semibold text-[#4f46d9]" type="button" onClick={() => navigate(`${course._id}/edit`)}>Edit</button>
                       <button className="text-xs font-semibold text-[#4f46d9]" type="button" onClick={() => handleChangeStatus(course)}>{isPublished ? "Draft" : "Publish"}</button>
                       <button className="text-xs font-semibold text-[#a33d50]" type="button" onClick={() => handleArchiveCourse(course.id)}>Archive</button>
                     </div>

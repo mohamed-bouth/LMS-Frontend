@@ -2,6 +2,7 @@ import { useState } from "react";
 import Icon from "../../../../components/Icon.jsx";
 import { createCourse } from "../../services/courseService.js";
 import { useAuth } from "../../../auth/contexts/AuthContext.jsx";
+import { useNavigate, Link } from "react-router";
 
 const initialValues = {
   title: "",
@@ -12,11 +13,12 @@ const initialValues = {
   estimatedDuration: "",
 };
 
-export default function CreateCoursePage({ onBack, onCreate }) {
+export default function CreateCoursePage() {
   const { token } = useAuth();
   const [values, setValues] = useState(initialValues);
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const navigate = useNavigate()
 
   function updateField(event) {
     const { name, value } = event.target;
@@ -57,7 +59,7 @@ export default function CreateCoursePage({ onBack, onCreate }) {
         estimatedDuration,
       };
       await createCourse(token, course);
-      onCreate()
+      navigate('/manage/courses')
     } catch (error) {
       setError(error.message)
     } finally {
@@ -67,13 +69,11 @@ export default function CreateCoursePage({ onBack, onCreate }) {
 
   return (
     <div className="mx-auto w-full max-w-[760px] px-5 py-7 text-[#182038] sm:px-8 lg:px-10 lg:py-9">
-      <button
+      <Link to={'/manage/courses'}
         className="mb-5 inline-flex items-center gap-2 text-xs font-semibold text-[#4f46d9]"
-        type="button"
-        onClick={onBack}
       >
         <Icon name="arrow" size={17} /> Back to courses
-      </button>
+      </Link>
       <div className="mb-6">
         <p className="text-[10px] font-bold uppercase tracking-[1.4px] text-[#7770e6]">
           Courses management
@@ -180,13 +180,11 @@ export default function CreateCoursePage({ onBack, onCreate }) {
           </p>
         )}
         <div className="mt-7 flex justify-end gap-3 border-t border-[#eeeef3] pt-5">
-          <button
+          <Link to={'/manage/courses'}
             className="rounded-[9px] border border-[#dfe2ea] px-4 py-2.5 text-xs font-semibold text-[#596077]"
-            type="button"
-            onClick={onBack}
           >
             Cancel
-          </button>
+          </Link>
           <button
             className="rounded-[9px] bg-[#4f46d9] px-4 py-2.5 text-xs font-semibold text-white disabled:opacity-60"
             type="submit"

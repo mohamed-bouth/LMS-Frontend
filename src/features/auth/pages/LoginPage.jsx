@@ -1,7 +1,7 @@
 import Logo from "../../../components/Logo.jsx";
 import LoginForm from "../components/LoginForm.jsx";
 
-export default function LoginPage({ onAuthenticated, onNavigate }) {
+export default function LoginPage() {
   return (
       <main className="grid min-h-screen grid-cols-1 bg-white min-[801px]:grid-cols-[minmax(420px,1.07fr)_minmax(500px,0.93fr)]">
         <section className="relative hidden min-h-[700px] overflow-hidden bg-gradient-to-br from-[#f0f0ff] via-[#e6e7ff] to-[#f5f1ff] px-12 py-[45px] min-[801px]:block min-[1101px]:px-[clamp(42px,6vw,92px)]">
@@ -52,7 +52,7 @@ export default function LoginPage({ onAuthenticated, onNavigate }) {
           <div className="mb-[70px] block w-full max-w-[430px] min-[801px]:hidden">
             <Logo />
           </div>
-          <LoginForm onAuthenticated={onAuthenticated} onNavigate={onNavigate} />
+          <LoginForm />
           <p className="mt-auto pt-[55px] text-center text-[11px] text-[#a0a5b2] min-[801px]:absolute min-[801px]:bottom-[25px] min-[801px]:mt-0 min-[801px]:pt-0">
             © 2025 EduLearn. Secure learning, thoughtfully designed.
           </p>

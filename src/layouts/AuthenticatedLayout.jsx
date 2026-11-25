@@ -1,18 +1,43 @@
 import Icon from "../components/Icon.jsx";
+import { useAuth } from "../features/auth/contexts/AuthContext.jsx";
 import Sidebar from "./components/Sidebar.jsx";
 import { Outlet } from "react-router";
 
 export default function AuthenticatedLayout({
-  user,
   sidebarOpen,
   onCloseSidebar,
   onOpenSidebar,
   onNavigate,
 }) {
+  const {user, isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#fafafe] text-[#182038]">
+        <Sidebar
+          isOpen={sidebarOpen}
+          onClose={onCloseSidebar}
+          onNavigate={onNavigate}
+        />
+        <div className="min-h-screen lg:ml-[250px]">
+          <header className="flex h-[76px] items-center border-b border-[#e7e8ef] bg-white px-5 sm:px-8 lg:px-10">
+            <button
+              className="mr-4 text-[#4f46d9] lg:hidden"
+              type="button"
+              aria-label="Open navigation"
+              onClick={onOpenSidebar}
+            >
+              <Icon name="menu" size={22} />
+            </button>
+          </header>
+           <Outlet />
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-[#fafafe] text-[#182038]">
       <Sidebar
-        user={user}
         isOpen={sidebarOpen}
         onClose={onCloseSidebar}
         onNavigate={onNavigate}

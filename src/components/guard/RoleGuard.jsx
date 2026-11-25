@@ -1,4 +1,12 @@
-export default function ProtectedView({ role, allowedRole, allowedRoles = [], children }) {
+import { Navigate, Outlet } from "react-router";
+import { useAuth } from "../../features/auth/contexts/AuthContext";
+
+export default function RoleGuard({allowedRole, allowedRoles = [] }) {
+  const { user } = useAuth()
+  if(!user){
+    return <Navigate to={"/login"}/>
+  }
+  const role = user.role
   const roles = allowedRoles.length > 0 ? allowedRoles : [allowedRole];
   const isAllowed = roles.some((item) => item && role?.toLowerCase() === item.toLowerCase());
 
@@ -13,5 +21,5 @@ export default function ProtectedView({ role, allowedRole, allowedRoles = [], ch
     );
   }
 
-  return children;
+  return <Outlet/>;
 }
