@@ -1,99 +1,122 @@
 # LMS Frontend
 
-React frontend for a Learning Management System (LMS), with separate learner
-and administrator/trainer experiences.
+A React single-page frontend for the LMS platform. It provides separate learner and administrator/trainer experiences and connects to the LMS REST API.
 
 ## Current functionality
 
-- Login and registration forms with controlled inputs, validation, loading, and
-  error states.
-- React Router navigation for guest and authenticated pages.
-- In-memory authenticated session synchronized with `sessionStorage`. The
-  session survives a page refresh and is cleared when the browser tab closes or
-  the user logs out.
-- User profile page and learner enrolled-courses page, including search and
-  loading, error, retry, and empty states.
-- Administrator/trainer course catalogue management: list, search, create,
-  edit, publish/unpublish, and archive courses.
-- Role-restricted course management routes.
-- A course modules route at `/courses/modules`; its page is currently a basic
-  placeholder and is not yet connected to module data.
+- Login and learner registration.
+- Authentication session kept in React context and persisted in `sessionStorage` for the current browser tab.
+- Role-aware navigation for learners, administrators, and trainers.
+- Protected routes for signed-in users and role-restricted course management.
+- User profile page.
+- Public course catalogue.
+- Learner enrolments page with search, loading, error, empty, and retry states.
+- Administrator/trainer course management: list and search courses, create and edit courses, publish or unpublish courses, and archive courses.
+- Course modules route at `/courses/modules`; this page is currently a placeholder and is not connected to module data.
 
-Authentication uses `POST /api/auth/login` and `POST /api/auth/register`. After
-login, the frontend fetches the current user profile and uses the backend role
-to route the user to the appropriate area.
+## Routes
+
+| Path | Access | Page |
+| --- | --- | --- |
+| `/login` | Guest | Sign in |
+| `/register` | Guest | Create a learner account |
+| `/courses` | Public | Browse courses |
+| `/profile` | Signed in | View the current user's profile |
+| `/enrollments/my` | Learner | View and search enrolled courses |
+| `/courses/modules` | Learner | Course modules placeholder |
+| `/manage/courses` | Administrator or trainer | Manage courses |
+| `/manage/courses/new` | Administrator or trainer | Create a course |
+| `/manage/courses/:courseId/edit` | Administrator or trainer | Edit a course |
+
+Unknown routes redirect to a role-appropriate page or to login.
 
 ## Technology
 
-- React with functional components and JSX
-- React Router
-- Vite
-- Tailwind CSS
-- JavaScript modules
-- REST API requests with `fetch` and `async/await`
+- React 19
+- React Router 8
+- Vite 8
+- Tailwind CSS 4
+- JavaScript with JSX
+- REST requests through the browser `fetch` API
+
+Axios and TanStack Query are not currently integrated.
 
 ## Project structure
 
 ```text
 src/
-├── components/                 # Shared UI components and role guard
+├── components/                 # Shared UI, loader, icons, and route guards
 ├── features/
-│   ├── auth/                   # Login, registration, and profile services
+│   ├── auth/
+│   │   ├── components/         # Login and registration forms
+│   │   ├── contexts/            # AuthContext and useAuth
+│   │   ├── pages/               # Login and registration pages
+│   │   └── services/            # Authentication and profile requests
 │   ├── courses/
-│   │   ├── hooks/              # Course state, loading, and actions
-│   │   ├── pages/admin/        # Course list, create, and edit pages
-│   │   ├── pages/learner/      # Learner course pages
-│   │   └── services/           # Course and enrollment API requests
-│   ├── modules/pages/learner/  # Course modules page
-│   └── profile/pages/          # Learner profile page
-├── layouts/                    # Guest and authenticated layouts
-├── services/                   # Shared API access
-├── App.jsx                     # Session, routes, and page composition
-└── main.jsx                    # Application entry point and BrowserRouter
+│   │   ├── components/          # Course cards
+│   │   ├── pages/
+│   │   │   ├── admin/           # List, create, and edit courses
+│   │   │   └── public/          # Public course catalogue
+│   │   └── services/            # Course API requests
+│   ├── enrollments/
+│   │   ├── pages/learner/       # Learner enrolments
+│   │   └── services/            # Enrolment API requests
+│   ├── modules/pages/learner/   # Course modules placeholder
+│   └── profile/pages/           # User profile
+├── layouts/                     # Guest and authenticated layouts
+├── services/api.js              # Shared fetch and authenticated request helpers
+├── App.jsx                      # Route definitions and route composition
+└── main.jsx                     # React entry point, BrowserRouter, AuthProvider
 ```
 
-Course-specific state and actions live in `features/courses/hooks/useCourses.js`;
-API request functions stay in the feature service modules. Admin and learner
-pages are separated under `features/courses/pages`.
+Feature-specific API functions live beside their feature. The shared API helper is in `src/services/api.js`. Authentication state and actions are provided by `AuthContext` and accessed with `useAuth()`.
+
+## Backend configuration
+
+Create a `.env` file in the project root:
+
+```env
+VITE_BACK_END_URL=http://localhost:3000
+```
+
+Set the value to the base URL of your running backend. The frontend currently calls these API paths:
+
+- `POST /api/auth/login`
+- `POST /api/auth/register`
+- `GET /api/profiles/me`
+- `GET /api/courses`
+- `GET /api/trainer/courses`
+- `GET /api/courses/manage/:courseId`
+- `POST /api/courses`
+- `PATCH /api/courses/:courseId`
+- `PATCH /api/courses/:courseId/publish` or `PATCH /api/courses/:courseId/unpublish`
+- `PATCH /api/courses/:courseId/archived`
+- `GET /api/enrollments/me`
+
+The backend should be running and accessible from the browser before using API-backed pages.
 
 ## Getting started
 
 ### Requirements
 
-- Node.js
+- Node.js compatible with the installed Vite version
 - npm
 - A running LMS backend
 
-### Installation
+### Install and run
 
 ```bash
 npm install
-```
-
-Create a `.env` file in the project root and set the backend base URL:
-
-```env
-VITE_DOMAIN_URL=http://localhost:3000
-```
-
-Then start the development server:
-
-```bash
 npm run dev
 ```
 
-The Vite development server is configured to use port `5000` by default.
+Vite is configured to use port `5000` by default. Configure `VITE_BACK_END_URL` before starting the development server.
 
 ## Available scripts
 
 | Command | Description |
 | --- | --- |
-| `npm run dev` | Start the Vite development server on port 5000 |
+| `npm run dev` | Start the Vite development server |
 | `npm run build` | Create a production build |
 | `npm run preview` | Preview the production build |
 | `npm run lint` | Run ESLint |
-
-## Project guidance
-
-See [`AGENTS.md`](./AGENTS.md) for architecture, authentication, UX, and code
-validation guidance.
